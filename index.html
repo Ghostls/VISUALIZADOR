@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAC Obelisco</title>
+    <title>JAC Motors Venezuela</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -251,7 +251,6 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Iniciar sesión anónimamente para permitir el acceso público
                 await signInAnonymously(auth);
                 console.log("Sesión anónima iniciada con éxito.");
             } catch (error) {
@@ -263,17 +262,22 @@
         // Listen for authentication state changes (handles public vs admin view)
         onAuthStateChanged(auth, (user) => {
             if (user && user.isAnonymous === false) {
-                // User is signed in as an admin
                 document.getElementById('admin-login-btn').classList.add('hidden');
                 document.getElementById('logout-btn').classList.remove('hidden');
                 document.getElementById('add-vehicle-btn').classList.remove('hidden');
+                // Re-load models if a dealership is already open to show the admin buttons
+                if (concesionarioActualId) {
+                    loadModels(concesionarioActualId);
+                }
             } else {
-                // User is signed in as anonymous or signed out
                 document.getElementById('admin-login-btn').classList.remove('hidden');
                 document.getElementById('logout-btn').classList.add('hidden');
                 document.getElementById('add-vehicle-btn').classList.add('hidden');
+                // Re-load models to hide admin buttons
+                if (concesionarioActualId) {
+                    loadModels(concesionarioActualId);
+                }
             }
-            // Always load the dealerships, but the admin buttons depend on the auth state
             loadConcesionariosFromFirestore();
         });
 
@@ -328,8 +332,9 @@
 
         // Firebase Auth
         async function adminLogin() {
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
+            const email = "admin@jacobelisco.com";
+            const password = "Obelisco25.";
+
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 closeAdminModal();
@@ -394,6 +399,10 @@
         async function loadModels(concesionarioId) {
             const modelosContainer = document.getElementById('modelos-container');
             modelosContainer.innerHTML = `<div class="text-center py-8">Cargando modelos...</div>`;
+            
+            // Check if user is an admin after a change in auth state
+            const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
+
             try {
                 const vehiculosRef = collection(db, 'concesionarios', concesionarioId, 'vehiculos');
                 const snapshot = await getDocs(vehiculosRef);
@@ -403,16 +412,27 @@
                     return;
                 }
                 
-                const isAdmin = auth.currentUser && !auth.currentUser.isAnonymous;
-
                 snapshot.forEach(doc => {
                     const modelo = doc.data();
                     const modeloCard = document.createElement('div');
-                    modeloCard.className = 'modelo-tab bg-white rounded-2xl shadow-xl overflow-hidden transition-transform duration-200 transform hover:scale-105 relative hover:shadow-2xl';
+                    modeloCard.className = 'modelo-tab bg-white rounded-2xl shadow-xl overflow-hidden transition-transform duration-200 transform hover:scale-105';
                     modeloCard.onclick = () => openModelo(doc.id);
+                    
+                    const adminButtonsHtml = isAdmin ? `
+                        <div class="flex gap-2">
+                            <button onclick="openEditVehicleModal('${doc.id}')" class="bg-yellow-400 text-gray-800 p-2 rounded-full hover:bg-yellow-500 transition-colors duration-200 shadow-md" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="openDeleteConfirmationModal('${doc.id}')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200 shadow-md" title="Eliminar">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    ` : '';
+
                     modeloCard.innerHTML = `
-                        <div class="jac-blue py-3 px-4 text-white font-semibold rounded-t-2xl text-center">
+                        <div class="jac-blue py-3 px-4 text-white font-semibold rounded-t-2xl flex justify-between items-center">
                             <h3>${modelo.nombre}</h3>
+                            ${adminButtonsHtml}
                         </div>
                         <div class="p-4">
                             <div class="flex justify-between text-sm mb-1">
@@ -426,25 +446,10 @@
                         </div>
                     `;
 
-                    // Add admin buttons only if the user is an admin
-                    if (isAdmin) {
-                        const adminButtonsDiv = document.createElement('div');
-                        adminButtonsDiv.className = 'absolute top-2 right-2 flex gap-2 p-2 rounded-bl-lg bg-white/70 backdrop-blur-sm';
-                        adminButtonsDiv.innerHTML = `
-                            <button onclick="openEditVehicleModal('${doc.id}')" class="bg-yellow-400 text-gray-800 p-2 rounded-full hover:bg-yellow-500 transition-colors duration-200 shadow-md" title="Editar">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="openDeleteConfirmationModal('${doc.id}')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200 shadow-md" title="Eliminar">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        `;
-                        // Detener la propagación del evento para que el clic en el botón de admin no abra los detalles del modelo
-                        adminButtonsDiv.querySelectorAll('button').forEach(btn => {
-                            btn.addEventListener('click', (e) => e.stopPropagation());
-                        });
-                        modeloCard.appendChild(adminButtonsDiv);
-                    }
-
+                    modeloCard.querySelectorAll('button').forEach(btn => {
+                        btn.addEventListener('click', (e) => e.stopPropagation());
+                    });
+                    
                     modelosContainer.appendChild(modeloCard);
                 });
             } catch (error) {
@@ -495,14 +500,6 @@
                                 <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
                                     <h4 class="font-bold text-gray-600">Transmisión</h4>
                                     <p class="text-gray-800" id="transmision-spec">${modelo.transmision}</p>
-                                </div>
-                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
-                                    <h4 class="font-bold text-gray-600">Potencia</h4>
-                                    <p class="text-gray-800" id="potencia-spec">${modelo.potencia}</p>
-                                </div>
-                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
-                                    <h4 class="font-bold text-gray-600">Consumo</h4>
-                                    <p class="text-gray-800" id="consumo-spec">${modelo.consumo}</p>
                                 </div>
                             </div>
                             <h3 class="text-xl font-bold mb-3 text-jac-blue">Planes y Precios</h3>
@@ -704,7 +701,8 @@
         window.closeMessageBox = closeMessageBox;
         window.addPlanField = addPlanField;
         window.removePlan = removePlan;
-
+        window.openConcesionario = openConcesionario;
+        window.openModelo = openModelo;
     </script>
 </body>
 </html>
