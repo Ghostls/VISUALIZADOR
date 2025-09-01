@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAC Obelisco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .jac-blue { background-color: #004d9c; }
+        .jac-dark-blue { color: #003366; }
+        .jac-dark-blue-bg { background-color: #003366; }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 md:p-12 font-sans leading-normal tracking-normal text-gray-800 bg-gray-100">
+
+    <header class="flex justify-between items-center mb-10 flex-wrap">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-jac-dark-blue-bg mb-4 sm:mb-0">
+            <span class="jac-blue text-white px-2 py-1 rounded-md">JAC</span> Motors Venezuela
+        </h1>
+        <div class="flex items-center space-x-2">
+            <button id="admin-login-btn" onclick="openAdminModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 text-sm sm:text-base shadow-lg hover:shadow-xl">
+                <i class="fa-solid fa-user-gear mr-1"></i> Acceso Admin
+            </button>
+            <button id="logout-btn" onclick="adminLogout()" class="hidden text-sm font-medium text-red-500 hover:text-red-700 transition-colors">
+                <i class="fa-solid fa-right-from-bracket mr-1"></i> Cerrar Sesión
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto">
+        <section id="concesionarios-section">
+            <h2 class="text-2xl font-bold mb-4">Nuestros Concesionarios</h2>
+            <div id="concesionarios-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </section>
+
+        <section id="modelos-section" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="goBackToConcesionarios()" class="back-button text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
+                    <i class="fa-solid fa-arrow-left mr-2"></i>Volver
+                </button>
+                <button id="add-vehicle-btn" onclick="openAddVehicleModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 hidden text-sm sm:text-base shadow-lg hover:shadow-xl">
+                    <i class="fa-solid fa-plus mr-2"></i>Añadir Vehículo
+                </button>
+            </div>
+            <h2 id="concesionario-title" class="text-2xl font-bold text-center mb-6"></h2>
+            <div id="modelos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                </div>
+        </section>
+
+        <section id="modelo-detail-section" class="hidden"></section>
+    </main>
+
+    <div id="admin-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80">
+            <h3 class="text-xl font-bold text-center mb-4">Acceso de Administrador</h3>
+            <div class="mb-4">
+                <label for="admin-email" class="block text-gray-700 text-sm font-semibold mb-2">Correo</label>
+                <input type="email" id="admin-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ingresa el correo">
+            </div>
+            <div class="mb-4">
+                <label for="admin-password" class="block text-gray-700 text-sm font-semibold mb-2">Contraseña</label>
+                <input type="password" id="admin-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ingresa la contraseña">
+            </div>
+            <div class="flex justify-between">
+                <button onclick="closeAdminModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                    Cancelar
+                </button>
+                <button onclick="adminLogin()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                    Ingresar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-vehicle-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-xl max-h-screen overflow-y-auto">
+            <h3 class="text-xl font-bold text-center mb-4">Agregar Nuevo Vehículo</h3>
+            <form id="add-vehicle-form" onsubmit="submitAddVehicle(event); return false;">
+                <div class="mb-4">
+                    <label for="nombre" class="block text-gray-700 text-sm font-semibold mb-2">Nombre del Modelo</label>
+                    <input type="text" id="nombre" name="nombre" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="motor" class="block text-gray-700 text-sm font-semibold mb-2">Motor</label>
+                        <input type="text" id="motor" name="motor" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                    <div>
+                        <label for="transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
+                        <input type="text" id="transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                    <div>
+                        <label for="potencia" class="block text-gray-700 text-sm font-semibold mb-2">Potencia</label>
+                        <input type="text" id="potencia" name="potencia" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                    <div>
+                        <label for="consumo" class="block text-gray-700 text-sm font-semibold mb-2">Consumo</label>
+                        <input type="text" id="consumo" name="consumo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="colores" class="block text-gray-700 text-sm font-semibold mb-2">Colores (separados por coma)</label>
+                    <input type="text" id="colores" name="colores" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ej: #000000, #FFFFFF" required>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-gray-700 text-sm font-semibold">Planes de Compra</label>
+                        <button type="button" onclick="addPlanField('planes-container-form')" class="text-jac-blue hover:text-jac-dark-blue">
+                            <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Plan
+                        </button>
+                    </div>
+                    <div id="planes-container-form">
+                        <div class="flex items-center gap-2 mb-2">
+                            <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                            <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" onclick="closeAddVehicleModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                        Guardar Vehículo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="edit-vehicle-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-xl max-h-screen overflow-y-auto">
+            <h3 class="text-xl font-bold text-center mb-4">Editar Vehículo</h3>
+            <form id="edit-vehicle-form" onsubmit="submitEditVehicle(event); return false;">
+                <input type="hidden" id="edit-vehicle-id">
+                <div class="mb-4">
+                    <label for="edit-nombre" class="block text-gray-700 text-sm font-semibold mb-2">Nombre del Modelo</label>
+                    <input type="text" id="edit-nombre" name="nombre" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="edit-motor" class="block text-gray-700 text-sm font-semibold mb-2">Motor</label>
+                        <input type="text" id="edit-motor" name="motor" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                    <div>
+                        <label for="edit-transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
+                        <input type="text" id="edit-transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                    <div>
+                        <label for="edit-potencia" class="block text-gray-700 text-sm font-semibold mb-2">Potencia</label>
+                        <input type="text" id="edit-potencia" name="potencia" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                    <div>
+                        <label for="edit-consumo" class="block text-gray-700 text-sm font-semibold mb-2">Consumo</label>
+                        <input type="text" id="edit-consumo" name="consumo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="edit-colores" class="block text-gray-700 text-sm font-semibold mb-2">Colores (separados por coma)</label>
+                    <input type="text" id="edit-colores" name="colores" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ej: #000000, #FFFFFF" required>
+                </div>
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-gray-700 text-sm font-semibold">Planes de Compra</label>
+                        <button type="button" onclick="addPlanField('planes-container-edit')" class="text-jac-blue hover:text-jac-dark-blue">
+                            <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Plan
+                        </button>
+                    </div>
+                    <div id="planes-container-edit">
+                        </div>
+                </div>
+                <div class="flex justify-between">
+                    <button type="button" onclick="closeEditVehicleModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="delete-confirmation-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80 text-center">
+            <h3 class="text-xl font-bold mb-4">Confirmar Eliminación</h3>
+            <p class="text-gray-700 mb-6">¿Estás seguro de que deseas eliminar este vehículo?</p>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeDeleteConfirmationModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                    Cancelar
+                </button>
+                <button onclick="deleteVehicle()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-lg hover:shadow-xl">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80 text-center">
+            <p id="message-text" class="text-gray-800 mb-4"></p>
+            <button onclick="closeMessageBox()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                Aceptar
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase SDKs - Versión modular CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuJ4-FXg8o8UuWJ__FWln1_187sXvL1i4",
+            authDomain: "visor-ef586.firebaseapp.com",
+            projectId: "visor-ef586",
+            storageBucket: "visor-ef586.firebasestorage.app",
+            messagingSenderId: "502569707187",
+            appId: "1:502569707187:web:ac5a6f2eaeb793b76932c6"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // State variables
+        let concesionarioActualId = null;
+        let vehiculoActualId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Iniciar sesión anónimamente para permitir el acceso público
+                await signInAnonymously(auth);
+                console.log("Sesión anónima iniciada con éxito.");
+            } catch (error) {
+                console.error("Error al iniciar sesión anónimamente: ", error);
+                showMessageBox("Error al cargar la aplicación. Por favor, inténtelo de nuevo.");
+            }
+        });
+
+        // Listen for authentication state changes (handles public vs admin view)
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.isAnonymous === false) {
+                // User is signed in as an admin
+                document.getElementById('admin-login-btn').classList.add('hidden');
+                document.getElementById('logout-btn').classList.remove('hidden');
+                document.getElementById('add-vehicle-btn').classList.remove('hidden');
+            } else {
+                // User is signed in as anonymous or signed out
+                document.getElementById('admin-login-btn').classList.remove('hidden');
+                document.getElementById('logout-btn').classList.add('hidden');
+                document.getElementById('add-vehicle-btn').classList.add('hidden');
+            }
+            // Always load the dealerships, but the admin buttons depend on the auth state
+            loadConcesionariosFromFirestore();
+        });
+
+        // UI Modal Functions
+        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
+        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+        function openAddVehicleModal() { 
+            document.getElementById('add-vehicle-modal').classList.remove('hidden'); 
+            document.getElementById('add-vehicle-form').reset();
+            document.getElementById('planes-container-form').innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                    <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `;
+        }
+        function closeAddVehicleModal() { 
+            document.getElementById('add-vehicle-modal').classList.add('hidden'); 
+            document.getElementById('add-vehicle-form').reset();
+            document.getElementById('planes-container-form').innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                    <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `;
+        }
+        function openEditVehicleModal(id) { 
+            vehiculoActualId = id;
+            document.getElementById('edit-vehicle-modal').classList.remove('hidden');
+            loadVehicleForEdit(id);
+        }
+        function closeEditVehicleModal() { 
+            document.getElementById('edit-vehicle-modal').classList.add('hidden'); 
+            document.getElementById('edit-vehicle-form').reset();
+        }
+        function openDeleteConfirmationModal(id) {
+            vehiculoActualId = id;
+            document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+        }
+        function closeDeleteConfirmationModal() { document.getElementById('delete-confirmation-modal').classList.add('hidden'); }
+        function showMessageBox(message) {
+            document.getElementById('message-text').textContent = message;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+        function closeMessageBox() { document.getElementById('message-modal').classList.add('hidden'); }
+
+        // Firebase Auth
+        async function adminLogin() {
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                closeAdminModal();
+                showMessageBox('¡Inicio de sesión como administrador exitoso!');
+            } catch (error) {
+                console.error("Error de inicio de sesión de administrador: ", error);
+                showMessageBox('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
+            }
+        }
+
+        async function adminLogout() {
+            try {
+                await signOut(auth);
+                showMessageBox('Sesión cerrada correctamente.');
+            } catch (error) {
+                console.error("Error al cerrar sesión: ", error);
+                showMessageBox("Error al cerrar la sesión. Por favor, inténtelo de nuevo.");
+            }
+        }
+
+        // Dynamically loads the dealerships from Firestore
+        async function loadConcesionariosFromFirestore() {
+            const concesionariosContainer = document.getElementById('concesionarios-container');
+            concesionariosContainer.innerHTML = `<div class="text-center py-8">Cargando concesionarios...</div>`;
+
+            try {
+                const concesionariosRef = collection(db, 'concesionarios');
+                const snapshot = await getDocs(concesionariosRef);
+
+                concesionariosContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    concesionariosContainer.innerHTML = `<div class="text-center py-8 text-gray-500">No hay concesionarios disponibles.</div>`;
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const concesionario = doc.data();
+                    const concesionarioDiv = document.createElement('div');
+                    concesionarioDiv.className = 'concesionario-tab bg-white rounded-2xl shadow-xl p-4 cursor-pointer transition-transform duration-200 transform hover:scale-105 hover:shadow-2xl';
+                    concesionarioDiv.onclick = () => openConcesionario(doc.id, concesionario.nombre);
+                    concesionarioDiv.innerHTML = `
+                        <div class="jac-blue text-white p-3 rounded-xl font-bold text-center"><h3>${concesionario.nombre}</h3></div>
+                    `;
+                    concesionariosContainer.appendChild(concesionarioDiv);
+                });
+
+            } catch (error) {
+                console.error("Error al obtener los concesionarios: ", error);
+                concesionariosContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los concesionarios.</div>`;
+            }
+        }
+
+        // Opens the models view for a specific dealership
+        function openConcesionario(concesionarioId, concesionarioNombre) {
+            concesionarioActualId = concesionarioId;
+            document.getElementById('concesionarios-section').classList.add('hidden');
+            document.getElementById('modelos-section').classList.remove('hidden');
+            document.getElementById('concesionario-title').textContent = `Modelos Disponibles - ${concesionarioNombre}`;
+            loadModels(concesionarioId);
+        }
+
+        async function loadModels(concesionarioId) {
+            const modelosContainer = document.getElementById('modelos-container');
+            modelosContainer.innerHTML = `<div class="text-center py-8">Cargando modelos...</div>`;
+            try {
+                const vehiculosRef = collection(db, 'concesionarios', concesionarioId, 'vehiculos');
+                const snapshot = await getDocs(vehiculosRef);
+                modelosContainer.innerHTML = '';
+                if (snapshot.empty) {
+                    modelosContainer.innerHTML = `<div class="text-center py-8 text-gray-500">No hay vehículos disponibles en este concesionario.</div>`;
+                    return;
+                }
+                
+                const isAdmin = auth.currentUser && !auth.currentUser.isAnonymous;
+
+                snapshot.forEach(doc => {
+                    const modelo = doc.data();
+                    const modeloCard = document.createElement('div');
+                    modeloCard.className = 'modelo-tab bg-white rounded-2xl shadow-xl overflow-hidden transition-transform duration-200 transform hover:scale-105 relative hover:shadow-2xl';
+                    modeloCard.onclick = () => openModelo(doc.id);
+                    modeloCard.innerHTML = `
+                        <div class="jac-blue py-3 px-4 text-white font-semibold rounded-t-2xl text-center">
+                            <h3>${modelo.nombre}</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600 font-medium">Motor:</span>
+                                <span class="text-gray-800">${modelo.motor}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 font-medium">Transmisión:</span>
+                                <span class="text-gray-800">${modelo.transmision}</span>
+                            </div>
+                        </div>
+                    `;
+
+                    // Add admin buttons only if the user is an admin
+                    if (isAdmin) {
+                        const adminButtonsDiv = document.createElement('div');
+                        adminButtonsDiv.className = 'absolute top-2 right-2 flex gap-2 p-2 rounded-bl-lg bg-white/70 backdrop-blur-sm';
+                        adminButtonsDiv.innerHTML = `
+                            <button onclick="openEditVehicleModal('${doc.id}')" class="bg-yellow-400 text-gray-800 p-2 rounded-full hover:bg-yellow-500 transition-colors duration-200 shadow-md" title="Editar">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="openDeleteConfirmationModal('${doc.id}')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200 shadow-md" title="Eliminar">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        `;
+                        // Detener la propagación del evento para que el clic en el botón de admin no abra los detalles del modelo
+                        adminButtonsDiv.querySelectorAll('button').forEach(btn => {
+                            btn.addEventListener('click', (e) => e.stopPropagation());
+                        });
+                        modeloCard.appendChild(adminButtonsDiv);
+                    }
+
+                    modelosContainer.appendChild(modeloCard);
+                });
+            } catch (error) {
+                console.error("Error al obtener los modelos: ", error);
+                modelosContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los datos. Por favor, inténtelo de nuevo.</div>`;
+            }
+        }
+
+        // Opens the details view for a specific model
+        async function openModelo(modeloId) {
+            if (!concesionarioActualId) {
+                showMessageBox("Debe seleccionar un concesionario primero.");
+                return;
+            }
+            document.getElementById('modelos-section').classList.add('hidden');
+            document.getElementById('modelo-detail-section').classList.remove('hidden');
+            const detailContainer = document.getElementById('modelo-detail-section');
+            detailContainer.innerHTML = `<div class="text-center py-8">Cargando detalles...</div>`;
+
+            try {
+                const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', modeloId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const modelo = docSnap.data();
+                    const planesHTML = modelo.planes.map(plan => `
+                        <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center shadow-sm">
+                            <div class="font-semibold">${plan.nombre}</div>
+                            <div class="text-jac-blue font-bold">${plan.precio}</div>
+                        </div>
+                    `).join('');
+
+                    const coloresHTML = modelo.colores.map(color => `
+                        <div class="w-8 h-8 rounded-full border border-gray-300 shadow-md" style="background-color: ${color};"></div>
+                    `).join('');
+
+                    detailContainer.innerHTML = `
+                        <button onclick="goBackToModels()" class="back-button mb-4 text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
+                            <i class="fa-solid fa-arrow-left mr-2"></i>Volver a Modelos
+                        </button>
+                        <div class="bg-white p-6 rounded-2xl shadow-xl">
+                            <h2 id="modelo-title" class="text-2xl font-bold mb-4 text-center text-gray-800">${modelo.nombre}</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                    <h4 class="font-bold text-gray-600">Motor</h4>
+                                    <p class="text-gray-800" id="motor-spec">${modelo.motor}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                    <h4 class="font-bold text-gray-600">Transmisión</h4>
+                                    <p class="text-gray-800" id="transmision-spec">${modelo.transmision}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                    <h4 class="font-bold text-gray-600">Potencia</h4>
+                                    <p class="text-gray-800" id="potencia-spec">${modelo.potencia}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                    <h4 class="font-bold text-gray-600">Consumo</h4>
+                                    <p class="text-gray-800" id="consumo-spec">${modelo.consumo}</p>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3 text-jac-blue">Planes y Precios</h3>
+                            <div id="planes-container" class="grid gap-2 mb-6">
+                                ${planesHTML}
+                            </div>
+                            <h3 class="text-xl font-bold mb-3 text-jac-blue">Colores Disponibles</h3>
+                            <div id="colores-container" class="flex flex-wrap gap-2">
+                                ${coloresHTML}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    detailContainer.innerHTML = `<div class="text-center py-8 text-gray-500">Modelo no encontrado.</div>`;
+                }
+            } catch (error) {
+                console.error("Error al obtener los detalles del modelo: ", error);
+                detailContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los detalles. Por favor, inténtelo de nuevo.</div>`;
+            }
+        }
+
+        // Navigation
+        function goBackToConcesionarios() {
+            document.getElementById('modelos-section').classList.add('hidden');
+            document.getElementById('concesionarios-section').classList.remove('hidden');
+        }
+
+        function goBackToModels() {
+            document.getElementById('modelo-detail-section').classList.add('hidden');
+            document.getElementById('modelos-section').classList.remove('hidden');
+        }
+
+        // CRUD Operations
+        async function submitAddVehicle(event) {
+            event.preventDefault();
+            if (!concesionarioActualId) {
+                showMessageBox("Error: Concesionario no seleccionado.");
+                return;
+            }
+
+            const form = document.getElementById('add-vehicle-form');
+            
+            const newVehicle = {
+                nombre: form.nombre.value,
+                motor: form.motor.value,
+                transmision: form.transmision.value,
+                potencia: form.potencia.value,
+                consumo: form.consumo.value,
+                colores: form.colores.value.split(',').map(c => c.trim()),
+                planes: []
+            };
+
+            const planInputs = document.getElementById('planes-container-form').querySelectorAll('input');
+            for (let i = 0; i < planInputs.length; i += 2) {
+                if (planInputs[i].value && planInputs[i+1].value) {
+                    newVehicle.planes.push({
+                        nombre: planInputs[i].value,
+                        precio: planInputs[i+1].value
+                    });
+                }
+            }
+
+            try {
+                await addDoc(collection(db, 'concesionarios', concesionarioActualId, 'vehiculos'), newVehicle);
+                showMessageBox('Vehículo añadido con éxito.');
+                closeAddVehicleModal();
+                loadModels(concesionarioActualId);
+            } catch (error) {
+                console.error("Error al añadir vehículo: ", error);
+                showMessageBox('Error al añadir el vehículo. Por favor, inténtelo de nuevo.');
+            }
+        }
+
+        async function loadVehicleForEdit(id) {
+            try {
+                const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', id);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const vehicle = docSnap.data();
+                    const form = document.getElementById('edit-vehicle-form');
+                    form['edit-vehicle-id'].value = id;
+                    form['edit-nombre'].value = vehicle.nombre;
+                    form['edit-motor'].value = vehicle.motor;
+                    form['edit-transmision'].value = vehicle.transmision;
+                    form['edit-potencia'].value = vehicle.potencia;
+                    form['edit-consumo'].value = vehicle.consumo;
+                    form['edit-colores'].value = vehicle.colores.join(', ');
+
+                    const planesContainer = document.getElementById('planes-container-edit');
+                    planesContainer.innerHTML = '';
+                    vehicle.planes.forEach(plan => {
+                        const planDiv = document.createElement('div');
+                        planDiv.className = 'flex items-center gap-2 mb-2';
+                        planDiv.innerHTML = `
+                            <input type="text" value="${plan.nombre}" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                            <input type="text" value="${plan.precio}" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                        planesContainer.appendChild(planDiv);
+                    });
+                } else {
+                    showMessageBox("No se encontró el vehículo para editar.");
+                }
+            } catch (error) {
+                console.error("Error al cargar datos para editar: ", error);
+                showMessageBox('Error al cargar datos. Por favor, inténtelo de nuevo.');
+            }
+        }
+
+        async function submitEditVehicle(event) {
+            event.preventDefault();
+            const form = document.getElementById('edit-vehicle-form');
+            const vehicleId = form['edit-vehicle-id'].value;
+            
+            const updatedVehicle = {
+                nombre: form['edit-nombre'].value,
+                motor: form['edit-motor'].value,
+                transmision: form['edit-transmision'].value,
+                potencia: form['edit-potencia'].value,
+                consumo: form['edit-consumo'].value,
+                colores: form['edit-colores'].value.split(',').map(c => c.trim()),
+                planes: []
+            };
+
+            const planInputs = document.getElementById('planes-container-edit').querySelectorAll('input');
+            for (let i = 0; i < planInputs.length; i += 2) {
+                 if (planInputs[i].value && planInputs[i+1].value) {
+                    updatedVehicle.planes.push({
+                        nombre: planInputs[i].value,
+                        precio: planInputs[i+1].value
+                    });
+                }
+            }
+
+            try {
+                const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', vehicleId);
+                await updateDoc(docRef, updatedVehicle);
+                showMessageBox('Vehículo actualizado con éxito.');
+                closeEditVehicleModal();
+                loadModels(concesionarioActualId);
+            } catch (error) {
+                console.error("Error al actualizar vehículo: ", error);
+                showMessageBox('Error al actualizar el vehículo. Por favor, inténtelo de nuevo.');
+            }
+        }
+
+        async function deleteVehicle() {
+            try {
+                if (concesionarioActualId && vehiculoActualId) {
+                    const vehicleDocRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', vehiculoActualId);
+                    await deleteDoc(vehicleDocRef);
+                    showMessageBox('Vehículo eliminado con éxito.');
+                    closeDeleteConfirmationModal();
+                    loadModels(concesionarioActualId);
+                }
+            } catch (error) {
+                console.error("Error al eliminar el vehículo: ", error);
+                showMessageBox('Error al eliminar el vehículo. Por favor, inténtelo de nuevo.');
+            }
+        }
+
+        function addPlanField(containerId) {
+            const container = document.getElementById(containerId);
+            const planDiv = document.createElement('div');
+            planDiv.className = 'flex items-center gap-2 mb-2';
+            planDiv.innerHTML = `
+                <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(planDiv);
+        }
+
+        function removePlan(button) {
+            button.closest('div').remove();
+        }
+
+        // Expose functions to the global scope for onclick attributes
+        window.openAdminModal = openAdminModal;
+        window.closeAdminModal = closeAdminModal;
+        window.adminLogin = adminLogin;
+        window.adminLogout = adminLogout;
+        window.goBackToConcesionarios = goBackToConcesionarios;
+        window.goBackToModels = goBackToModels;
+        window.openAddVehicleModal = openAddVehicleModal;
+        window.closeAddVehicleModal = closeAddVehicleModal;
+        window.submitAddVehicle = submitAddVehicle;
+        window.openEditVehicleModal = openEditVehicleModal;
+        window.closeEditVehicleModal = closeEditVehicleModal;
+        window.submitEditVehicle = submitEditVehicle;
+        window.openDeleteConfirmationModal = openDeleteConfirmationModal;
+        window.closeDeleteConfirmationModal = closeDeleteConfirmationModal;
+        window.deleteVehicle = deleteVehicle;
+        window.showMessageBox = showMessageBox;
+        window.closeMessageBox = closeMessageBox;
+        window.addPlanField = addPlanField;
+        window.removePlan = removePlan;
+
+    </script>
+</body>
+</html>
