@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAC Motors Venezuela</title>
+    <title>JAC Obelisco</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,7 +28,7 @@
 
     <header class="flex justify-between items-center mb-10 flex-wrap">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-jac-dark-blue-bg mb-4 sm:mb-0">
-            <span class="jac-blue text-white px-2 py-1 rounded-md">JAC</span> Motors Venezuela
+            <span class="jac-blue text-white px-2 py-1 rounded-md">JAC</span> Obelisco
         </h1>
         <div class="flex items-center space-x-2">
             <button id="admin-login-btn" onclick="openAdminModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 text-sm sm:text-base shadow-lg hover:shadow-xl">
@@ -265,7 +265,6 @@
                 document.getElementById('admin-login-btn').classList.add('hidden');
                 document.getElementById('logout-btn').classList.remove('hidden');
                 document.getElementById('add-vehicle-btn').classList.remove('hidden');
-                // Re-load models if a dealership is already open to show the admin buttons
                 if (concesionarioActualId) {
                     loadModels(concesionarioActualId);
                 }
@@ -273,7 +272,6 @@
                 document.getElementById('admin-login-btn').classList.remove('hidden');
                 document.getElementById('logout-btn').classList.add('hidden');
                 document.getElementById('add-vehicle-btn').classList.add('hidden');
-                // Re-load models to hide admin buttons
                 if (concesionarioActualId) {
                     loadModels(concesionarioActualId);
                 }
@@ -400,7 +398,6 @@
             const modelosContainer = document.getElementById('modelos-container');
             modelosContainer.innerHTML = `<div class="text-center py-8">Cargando modelos...</div>`;
             
-            // Check if user is an admin after a change in auth state
             const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
 
             try {
