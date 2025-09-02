@@ -104,14 +104,6 @@
                         <label for="transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
                         <input type="text" id="transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
                     </div>
-                    <div>
-                        <label for="potencia" class="block text-gray-700 text-sm font-semibold mb-2">Potencia</label>
-                        <input type="text" id="potencia" name="potencia" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                    <div>
-                        <label for="consumo" class="block text-gray-700 text-sm font-semibold mb-2">Consumo</label>
-                        <input type="text" id="consumo" name="consumo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
                 </div>
                 <div class="mb-4">
                     <label for="colores" class="block text-gray-700 text-sm font-semibold mb-2">Colores (separados por coma)</label>
@@ -581,8 +573,6 @@
                     form['edit-nombre'].value = vehicle.nombre;
                     form['edit-motor'].value = vehicle.motor;
                     form['edit-transmision'].value = vehicle.transmision;
-                    form['edit-potencia'].value = vehicle.potencia;
-                    form['edit-consumo'].value = vehicle.consumo;
                     form['edit-colores'].value = vehicle.colores.join(', ');
 
                     const planesContainer = document.getElementById('planes-container-edit');
