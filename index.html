@@ -22,6 +22,15 @@
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+        .tab-button.active {
+            background-color: #004d9c;
+            color: white;
+            border-bottom: 2px solid #fff;
+        }
+        .filter-btn.active {
+            background-color: #004d9c;
+            color: white;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-8 md:p-12 font-sans leading-normal tracking-normal text-gray-800 bg-gray-100">
@@ -30,554 +39,1605 @@
         <h1 class="text-3xl sm:text-4xl font-extrabold text-jac-dark-blue-bg mb-4 sm:mb-0">
             <span class="jac-blue text-white px-2 py-1 rounded-md">JAC</span> Obelisco
         </h1>
-        <div class="flex items-center space-x-2">
-            <button id="admin-login-btn" onclick="openAdminModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 text-sm sm:text-base shadow-lg hover:shadow-xl">
+        <div class="flex items-center space-x-2 flex-wrap sm:flex-nowrap">
+            <button id="planes-btn" onclick="showPlanesSection()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 text-sm sm:text-base shadow-lg hover:shadow-xl mt-2 sm:mt-0">
+                <i class="fa-solid fa-file-contract mr-1"></i> Planes de Compra
+            </button>
+            <button id="admin-login-btn" onclick="openAdminModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 text-sm sm:text-base shadow-lg hover:shadow-xl mt-2 sm:mt-0">
                 <i class="fa-solid fa-user-gear mr-1"></i> Acceso Admin
             </button>
-            <button id="logout-btn" onclick="adminLogout()" class="hidden text-sm font-medium text-red-500 hover:text-red-700 transition-colors">
+            <button id="logout-btn" onclick="adminLogout()" class="hidden text-sm font-medium text-red-500 hover:text-red-700 transition-colors mt-2 sm:mt-0">
                 <i class="fa-solid fa-right-from-bracket mr-1"></i> Cerrar Sesión
             </button>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto">
-        <section id="concesionarios-section">
-            <h2 class="text-2xl font-bold mb-4">Nuestros Concesionarios</h2>
-            <div id="concesionarios-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
-        </section>
+    <section id="concesionarios-section">
+        <h2 class="text-2xl font-bold mb-4">Nuestros Concesionarios</h2>
+        <div id="concesionarios-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+    </section>
 
-        <section id="modelos-section" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <button onclick="goBackToConcesionarios()" class="back-button text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
-                    <i class="fa-solid fa-arrow-left mr-2"></i>Volver
-                </button>
-                <button id="add-vehicle-btn" onclick="openAddVehicleModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 hidden text-sm sm:text-base shadow-lg hover:shadow-xl">
-                    <i class="fa-solid fa-plus mr-2"></i>Añadir Vehículo
-                </button>
-            </div>
-            <h2 id="concesionario-title" class="text-2xl font-bold text-center mb-6"></h2>
-            <div id="modelos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                </div>
-        </section>
+    <section id="modelos-section" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+            <button onclick="goBackToConcesionarios()" class="back-button text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
+                <i class="fa-solid fa-arrow-left mr-2"></i>Volver
+            </button>
+            <button id="add-vehicle-btn" onclick="openAddVehicleModal()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg transition-colors duration-200 hidden text-sm sm:text-base shadow-lg hover:shadow-xl">
+                <i class="fa-solid fa-plus mr-2"></i>Añadir Vehículo
+            </button>
+        </div>
+        <h2 id="concesionario-title" class="text-2xl font-bold text-center mb-6"></h2>
+        
+        <div id="payment-methods-card" class="hidden bg-white rounded-lg shadow-md p-4 mb-6">
+            <h3 class="text-lg font-bold text-jac-blue mb-2">Métodos de Pago de Entrega Inmediata</h3>
+            <div id="payment-methods-list" class="flex flex-wrap gap-2 text-sm text-gray-700"></div>
+        </div>
 
-        <section id="modelo-detail-section" class="hidden"></section>
-    </main>
-
-    <div id="admin-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80">
-            <h3 class="text-xl font-bold text-center mb-4">Acceso de Administrador</h3>
-            <div class="mb-4">
-                <label for="admin-email" class="block text-gray-700 text-sm font-semibold mb-2">Correo</label>
-                <input type="email" id="admin-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ingresa el correo">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <div class="flex items-center gap-2">
+                <label for="year-filter" class="font-semibold text-gray-700">Año:</label>
+                <select id="year-filter" class="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue w-32">
+                    <option value="all">Todos</option>
+                </select>
             </div>
-            <div class="mb-4">
-                <label for="admin-password" class="block text-gray-700 text-sm font-semibold mb-2">Contraseña</label>
-                <input type="password" id="admin-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ingresa la contraseña">
-            </div>
-            <div class="flex justify-between">
-                <button onclick="closeAdminModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
-                    Cancelar
-                </button>
-                <button onclick="adminLogin()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
-                    Ingresar
-                </button>
+            <div class="flex flex-wrap justify-center gap-2" id="type-filters">
+                <button class="filter-btn active px-4 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold" onclick="filterModels('all')">Todos</button>
+                <button class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold" onclick="filterModels('sedan')">Sedán</button>
+                <button class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold" onclick="filterModels('suv')">SUV</button>
+                <button class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold" onclick="filterModels('pickup')">Pick-up</button>
+                <button class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold" onclick="filterModels('vans')">Vans</button>
+                <button class="filter-btn px-4 py-2 rounded-lg bg-gray-300 text-gray-800 font-semibold" onclick="filterModels('camiones')">Camiones</button>
             </div>
         </div>
-    </div>
-
-    <div id="add-vehicle-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-xl max-h-screen overflow-y-auto">
-            <h3 class="text-xl font-bold text-center mb-4">Agregar Nuevo Vehículo</h3>
-            <form id="add-vehicle-form" onsubmit="submitAddVehicle(event); return false;">
-                <div class="mb-4">
-                    <label for="nombre" class="block text-gray-700 text-sm font-semibold mb-2">Nombre del Modelo</label>
-                    <input type="text" id="nombre" name="nombre" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="motor" class="block text-gray-700 text-sm font-semibold mb-2">Motor</label>
-                        <input type="text" id="motor" name="motor" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                    <div>
-                        <label for="transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
-                        <input type="text" id="transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label for="colores" class="block text-gray-700 text-sm font-semibold mb-2">Colores (separados por coma)</label>
-                    <input type="text" id="colores" name="colores" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ej: #000000, #FFFFFF" required>
-                </div>
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-gray-700 text-sm font-semibold">Planes de Compra</label>
-                        <button type="button" onclick="addPlanField('planes-container-form')" class="text-jac-blue hover:text-jac-dark-blue">
-                            <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Plan
-                        </button>
-                    </div>
-                    <div id="planes-container-form">
-                        <div class="flex items-center gap-2 mb-2">
-                            <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
-                            <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
-                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex justify-between">
-                    <button type="button" onclick="closeAddVehicleModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
-                        Guardar Vehículo
-                    </button>
-                </div>
-            </form>
+        
+        <div id="modelos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         </div>
-    </div>
-    
-    <div id="edit-vehicle-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-xl max-h-screen overflow-y-auto">
-            <h3 class="text-xl font-bold text-center mb-4">Editar Vehículo</h3>
-            <form id="edit-vehicle-form" onsubmit="submitEditVehicle(event); return false;">
-                <input type="hidden" id="edit-vehicle-id">
-                <div class="mb-4">
-                    <label for="edit-nombre" class="block text-gray-700 text-sm font-semibold mb-2">Nombre del Modelo</label>
-                    <input type="text" id="edit-nombre" name="nombre" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="edit-motor" class="block text-gray-700 text-sm font-semibold mb-2">Motor</label>
-                        <input type="text" id="edit-motor" name="motor" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                    <div>
-                        <label for="edit-transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
-                        <input type="text" id="edit-transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                    <div>
-                        <label for="edit-potencia" class="block text-gray-700 text-sm font-semibold mb-2">Potencia</label>
-                        <input type="text" id="edit-potencia" name="potencia" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                    <div>
-                        <label for="edit-consumo" class="block text-gray-700 text-sm font-semibold mb-2">Consumo</label>
-                        <input type="text" id="edit-consumo" name="consumo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label for="edit-colores" class="block text-gray-700 text-sm font-semibold mb-2">Colores (separados por coma)</label>
-                    <input type="text" id="edit-colores" name="colores" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ej: #000000, #FFFFFF" required>
-                </div>
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-gray-700 text-sm font-semibold">Planes de Compra</label>
-                        <button type="button" onclick="addPlanField('planes-container-edit')" class="text-jac-blue hover:text-jac-dark-blue">
-                            <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Plan
-                        </button>
-                    </div>
-                    <div id="planes-container-edit">
-                        </div>
-                </div>
-                <div class="flex justify-between">
-                    <button type="button" onclick="closeEditVehicleModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
-                        Guardar Cambios
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    </section>
 
-    <div id="delete-confirmation-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80 text-center">
-            <h3 class="text-xl font-bold mb-4">Confirmar Eliminación</h3>
-            <p class="text-gray-700 mb-6">¿Estás seguro de que deseas eliminar este vehículo?</p>
-            <div class="flex justify-center gap-4">
-                <button onclick="closeDeleteConfirmationModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
-                    Cancelar
-                </button>
-                <button onclick="deleteVehicle()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-lg hover:shadow-xl">
-                    Eliminar
-                </button>
-            </div>
+    <section id="planes-section" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+            <button onclick="goBackToConcesionarios()" class="back-button text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
+                <i class="fa-solid fa-arrow-left mr-2"></i>Volver
+            </button>
         </div>
-    </div>
+        <h2 class="text-2xl font-bold mb-4 text-center">Planes de Compra</h2>
+        <p class="text-center text-gray-600 mb-8">Selecciona un modelo para ver sus planes de financiamiento.</p>
+        <div id="planes-modelos-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        </div>
+    </section>
 
-    <div id="message-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
-        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80 text-center">
-            <p id="message-text" class="text-gray-800 mb-4"></p>
-            <button onclick="closeMessageBox()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
-                Aceptar
+    <section id="modelo-detail-section" class="hidden"></section>
+</main>
+
+<div id="admin-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80">
+        <h3 class="text-xl font-bold text-center mb-4">Acceso de Administrador</h3>
+        <div class="mb-4">
+            <label for="admin-email" class="block text-gray-700 text-sm font-semibold mb-2">Correo</label>
+            <input type="email" id="admin-email" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ingresa el correo">
+        </div>
+        <div class="mb-4">
+            <label for="admin-password" class="block text-gray-700 text-sm font-semibold mb-2">Contraseña</label>
+            <input type="password" id="admin-password" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" placeholder="Ingresa la contraseña">
+        </div>
+        <div class="flex justify-between">
+            <button onclick="closeAdminModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                Cancelar
+            </button>
+            <button onclick="adminLogin()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                Ingresar
             </button>
         </div>
     </div>
+</div>
 
-    <script type="module">
-        // Firebase SDKs - Versión modular CDN
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-        
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCuJ4-FXg8o8UuWJ__FWln1_187sXvL1i4",
-            authDomain: "visor-ef586.firebaseapp.com",
-            projectId: "visor-ef586",
-            storageBucket: "visor-ef586.firebasestorage.app",
-            messagingSenderId: "502569707187",
-            appId: "1:502569707187:web:ac5a6f2eaeb793b76932c6"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+<div id="add-vehicle-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-xl max-h-screen overflow-y-auto">
+        <h3 class="text-xl font-bold text-center mb-4">Agregar Nuevo Vehículo</h3>
+        <form id="add-vehicle-form" onsubmit="submitAddVehicle(event); return false;">
+            <div class="mb-4">
+                <label for="nombre" class="block text-gray-700 text-sm font-semibold mb-2">Nombre del Modelo</label>
+                <input type="text" id="nombre" name="nombre" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="año" class="block text-gray-700 text-sm font-semibold mb-2">Año</label>
+                    <input type="number" id="año" name="año" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="tipo" class="block text-gray-700 text-sm font-semibold mb-2">Tipo</label>
+                    <select id="tipo" name="tipo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                        <option value="">Seleccione un tipo</option>
+                        <option value="sedan">Sedán</option>
+                        <option value="suv">SUV</option>
+                        <option value="pickup">Pick-up</option>
+                        <option value="vans">Vans</option>
+                        <option value="camiones">Camiones</option>
+                    </select>
+                </div>
+            </div>
 
-        // State variables
-        let concesionarioActualId = null;
-        let vehiculoActualId = null;
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="motor" class="block text-gray-700 text-sm font-semibold mb-2">Motor</label>
+                    <input type="text" id="motor" name="motor" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
+                    <input type="text" id="transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="potencia" class="block text-gray-700 text-sm font-semibold mb-2">Potencia</label>
+                    <input type="text" id="potencia" name="potencia" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="consumo" class="block text-gray-700 text-sm font-semibold mb-2">Consumo</label>
+                    <input type="text" id="consumo" name="consumo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+            </div>
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await signInAnonymously(auth);
-                console.log("Sesión anónima iniciada con éxito.");
-            } catch (error) {
-                console.error("Error al iniciar sesión anónimamente: ", error);
-                showMessageBox("Error al cargar la aplicación. Por favor, inténtelo de nuevo.");
+            <div class="mb-4">
+                <label for="imagen-selector" class="block text-gray-700 text-sm font-semibold mb-2">Seleccionar Imagen del Vehículo</label>
+                <select id="imagen-selector" name="imagen-selector" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue">
+                    <option value="">Selecciona una imagen</option>
+                </select>
+                <div id="image-preview" class="mt-2 hidden">
+                    <p class="text-sm text-gray-500 mb-1">Vista previa:</p>
+                    <img id="preview-image" src="#" alt="Vista previa de la imagen" class="max-w-full h-auto rounded-lg shadow-md">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-gray-700 text-sm font-semibold">Colores y Cantidad (disponibilidad)</label>
+                    <button type="button" onclick="addColorField('colores-container-form')" class="text-jac-blue hover:text-jac-dark-blue">
+                        <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Color
+                    </button>
+                </div>
+                <div id="colores-container-form">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="text" placeholder="Nombre del Color (ej: blanco)" class="flex-1 px-3 py-2 border rounded-lg color-name-input">
+                        <input type="number" placeholder="Cantidad" class="flex-1 px-3 py-2 border rounded-lg color-quantity-input" min="0">
+                        <button type="button" class="text-red-500 hover:text-red-700" onclick="removeColorField(this)">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-gray-700 text-sm font-semibold">Planes de Compra</label>
+                    <button type="button" onclick="addPlanField('planes-container-form')" class="text-jac-blue hover:text-jac-dark-blue">
+                        <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Plan
+                    </button>
+                </div>
+                <div id="planes-container-form">
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                        <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                        <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between">
+                <button type="button" onclick="closeAddVehicleModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                    Cancelar
+                </button>
+                <button type="submit" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                    Guardar Vehículo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="edit-vehicle-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-xl max-h-screen overflow-y-auto">
+        <h3 class="text-xl font-bold text-center mb-4">Editar Vehículo</h3>
+        <form id="edit-vehicle-form" onsubmit="submitEditVehicle(event); return false;">
+            <input type="hidden" id="edit-vehicle-id">
+            <div class="mb-4">
+                <label for="edit-nombre" class="block text-gray-700 text-sm font-semibold mb-2">Nombre del Modelo</label>
+                <input type="text" id="edit-nombre" name="nombre" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="edit-año" class="block text-gray-700 text-sm font-semibold mb-2">Año</label>
+                    <input type="number" id="edit-año" name="año" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="edit-tipo" class="block text-gray-700 text-sm font-semibold mb-2">Tipo</label>
+                    <select id="edit-tipo" name="tipo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                        <option value="">Seleccione un tipo</option>
+                        <option value="sedan">Sedán</option>
+                        <option value="suv">SUV</option>
+                        <option value="pickup">Pick-up</option>
+                        <option value="vans">Vans</option>
+                        <option value="camiones">Camiones</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label for="edit-motor" class="block text-gray-700 text-sm font-semibold mb-2">Motor</label>
+                    <input type="text" id="edit-motor" name="motor" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="edit-transmision" class="block text-gray-700 text-sm font-semibold mb-2">Transmisión</label>
+                    <input type="text" id="edit-transmision" name="transmision" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="edit-potencia" class="block text-gray-700 text-sm font-semibold mb-2">Potencia</label>
+                    <input type="text" id="edit-potencia" name="potencia" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+                <div>
+                    <label for="edit-consumo" class="block text-gray-700 text-sm font-semibold mb-2">Consumo</label>
+                    <input type="text" id="edit-consumo" name="consumo" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-jac-blue" required>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-gray-700 text-sm font-semibold">Colores y Cantidad (disponibilidad)</label>
+                    <button type="button" onclick="addColorField('colores-container-edit')" class="text-jac-blue hover:text-jac-dark-blue">
+                        <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Color
+                    </button>
+                </div>
+                <div id="colores-container-edit">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-gray-700 text-sm font-semibold">Planes de Compra</label>
+                    <button type="button" onclick="addPlanField('planes-container-edit')" class="text-jac-blue hover:text-jac-dark-blue">
+                        <i class="fa-solid fa-plus-circle mr-1"></i>Añadir Plan
+                    </button>
+                </div>
+                <div id="planes-container-edit">
+                </div>
+            </div>
+            <div class="flex justify-between">
+                <button type="button" onclick="closeEditVehicleModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                    Cancelar
+                </button>
+                <button type="submit" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="delete-confirmation-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80 text-center">
+        <h3 class="text-xl font-bold mb-4">Confirmar Eliminación</h3>
+        <p class="text-gray-700 mb-6">¿Estás seguro de que deseas eliminar este <span id="delete-item-type"></span>?</p>
+        <div class="flex justify-center gap-4">
+            <button onclick="closeDeleteConfirmationModal()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400">
+                Cancelar
+            </button>
+            <button id="confirm-delete-btn" onclick="confirmDeletion()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 shadow-lg hover:shadow-xl">
+                Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="message-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-80 text-center">
+        <p id="message-text" class="text-gray-800 mb-4"></p>
+        <button onclick="closeMessageBox()" class="jac-blue text-white px-4 py-2 rounded-lg hover:jac-dark-blue-bg shadow-lg hover:shadow-xl">
+            Aceptar
+        </button>
+    </div>
+</div>
+
+<div id="planes-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-2xl max-h-screen overflow-y-auto relative">
+        <button onclick="closePlanesModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200">
+            <i class="fa-solid fa-xmark fa-2x"></i>
+        </button>
+        <h3 id="planes-modal-title" class="text-xl font-bold text-center mb-4 text-jac-dark-blue"></h3>
+        <div id="planes-modal-tabs" class="flex justify-center flex-wrap mb-4 border-b-2 border-jac-blue">
+        </div>
+        <div id="planes-modal-content">
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+    
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCuJ4-FXg8o8UuWJ__FWln1_187sXvL1i4",
+        authDomain: "visor-ef586.firebaseapp.com",
+        projectId: "visor-ef586",
+        storageBucket: "visor-ef586.firebasestorage.app",
+        messagingSenderId: "502569707187",
+        appId: "1:502569707187:web:ac5a6f2eaeb793b76932c6"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    let concesionarioActualId = null;
+    let vehiculoActualId = null;
+    let currentYearFilter = 'all';
+    let currentTypeFilter = 'all';
+    const concesionariosEstaticos = {};
+    
+    const planData = [
+        { id: "ruta-66", name: "Ruta 66" },
+        { id: "mi-nuevo-jac", name: "Mi nuevo JAC" },
+        { id: "compra-directa-6-cuotas", name: "Compra directa 6 cuotas" },
+        { id: "compra-directa-5-cuotas", name: "Compra directa 5 cuotas" },
+        { id: "compra-directa-35x35", name: "Compra directa 35x35" },
+        { id: "financiamiento-entrega-inmediata-12-meses", name: "Financiamiento 12 meses" },
+        { id: "financiamiento-entrega-inmediata-30-meses", name: "Financiamiento 30 meses" }
+    ];
+
+    const vehiculosList = [
+        { id: 'x100', name: "X100" },
+        { id: 'urban-chasis-3ton', name: "Urban Chasis 3 TON" },
+        { id: 'urban-ferretero-3ton', name: "Urban Ferretero 3 TON" },
+        { id: 'c-3500-4x4', name: "C-3500 4x4" },
+        { id: 'doble-cabina', name: "Doble Cabina" },
+        { id: 'pionero-5ton', name: "Pionero Chasis - 5TON" },
+        { id: 'pionero-5ton-ferretero', name: "Pionero Ferretero - 5TON" },
+        { id: '6t-chasis-6ton', name: "6T Chasis 6 TON" },
+        { id: '6t-ferretero-6ton', name: "6T Ferretero 6 TON" },
+        { id: 'bufalo-12ton', name: "Búfalo 12 TON" },
+        { id: 'leyenda-chasis-20ton', name: "Leyenda Chasis - 20 TON" },
+        { id: 'cavalino-240hp-22ton', name: "Cavalino 240HP - 22 TON" },
+        { id: 'chuto-4251-380hp-40ton', name: "Chuto 4251 380HP - 40 TON" },
+        { id: 'chuto-4251-430hp-45ton', name: "Chuto 4251 430HP - 45 TON" },
+        { id: 'la-venezolana-gasolina-4x2', name: "La Venezolana - Gasolina 4X2" },
+        { id: 'la-venezolana-diesel-4x2', name: "La Venezolana - Diesel 4X2" },
+        { id: 'la-venezolana-diesel-4x4', name: "La Venezolana - Diesel 4X4" },
+        { id: 'la-venezolana-pro-4x4', name: "La Venezolana Pro 4x4" },
+        { id: 'extreme', name: "T8 Extreme"},
+        { id: 'aventura-gasolina', name: "Aventura - Gasolina" },
+        { id: 'aventura-diesel', name: "Aventura - Diesel" },
+        { id: 'arena-manual', name: "Arena Manual" },
+        { id: 'arena-automatico', name: "Arena Automático" },
+        { id: 'arena-pro', name: "Arena PRO" },
+        { id: 'nevado-manual', name: "Nevado Manual" },
+        { id: 'nevado-automatico', name: "Nevado Automático" },
+        { id: 'tepuy', name: "Tepuy" },
+        { id: 'tepuy-pro', name: "Tepuy Pro" },
+        { id: 'savanna', name: "Savanna" },
+        { id: 'j7', name: "J7" },
+        { id: 'elite', name: "Élite" },
+        { id: 'sunray-v4-pasajero', name: "Sunray V4 Pasajeros" },
+        { id: 'sunray-v4-carga', name: "Sunray V4 Carga" },
+        { id: 'sunray-v6-pasajeros', name: "Sunray V6 Pasajeros" },
+        { id: 'sunray-v6-carga', name: "Sunray V6 Carga" },
+        { id: 'refine', name: "Refine" },
+        { id: 'voltio-electrico', name: "Voltio Eléctrico" },
+        { id: 'electron-electrico', name: "Electron Eléctrico" },
+        { id: 'nevado-electrico', name: "Nevado Eléctrico" },
+        { id: '1073-electrico', name: "1073 Eléctrico" },
+        { id: 'sunray-v4-ambulancia', name: "Sunray V4 Ambulancia" },
+        { id: 'arena-policial', name: "Arena Policial" },
+        { id: 'nevado-policial', name: "Nevado Policial" },
+        { id: 'j7-policial', name: "J7 Policial" },
+        { id: 'la-venezolana-policial', name: "La Venezolana Policial" },
+        { id: 'la-venezolana-policial-diesel', name: "La Venezolana Policial Diesel" },
+        { id: 'jac-compactador', name: "Compactador" },
+        { id: '6730-autobus', name: "6730 autobus 28+6+1 Puestos" },
+        { id: 'x100-cava-conservacion', name: "X100 Cava de Conservación" },
+        { id: 'urban-cava-seca-3ton', name: "Urban Cava Seca - 3TON" },
+        { id: 'urban-cava-conservacion-3ton', name: "Urban Cava de Conservación - 3 TON" },
+        { id: 'urban-cava-refrigerada-3ton', name: "Urban Cava Refrigerada - 3 TON" },
+        { id: '6t-cava-seca-6ton', name: "6T Cava seca - 6 TON" },
+        { id: '6t-cava-conservacion-6ton', name: "6T Cava de Conservación - 6 TON" },
+        { id: '6t-cava-refrigerada-6ton', name: "6T Cava Refrigerada - 6TON" },
+        { id: 'bufalo-cava-seca-12ton', name: "Búfalo Cava Seca - 12TON" },
+        { id: 'bufalo-cava-conservacion-12ton', name: "Búfalo Cava Conservación - 12TON" },
+        { id: 'bufalo-cava-refrigerada-12ton', name: "Búfalo Cava Refrigerada - 12TON" },
+        { id: 'leyenda-cava-seca-20ton', name: "Leyenda Cava Seca - 20 TON" },
+        { id: 'elevador-brazo-20m', name: "Elevador Brazo Elevador - 20M" },
+        { id: 'minero-20m3-tolva', name: "Minero 20M3 - Capacidad Tolva" },
+        { id: 'minero-14m3-tolva', name: "Minero 14M3 - Capacidad Tolva" },
+        { id: 'volkan-mezclador', name: "Volkan Mezclador" }
+    ];
+
+    const vehiculosDisponiblesEstaticos = {
+        'j7': true, 'elite': true, 'arena-manual': true, 'arena-automatico': true, 'arena-pro': true,
+        'nevado-manual': true, 'nevado-automatico': true, 'tepuy': true, 'tepuy-pro': true, 'savanna': true,
+        'la-venezolana-gasolina-4x2': true, 'la-venezolana-diesel-4x2': true, 'la-venezolana-diesel-4x4': true,
+        'la-venezolana-pro-4x4': true, 'la-venezolana-policial': true, 'la-venezolana-policial-diesel': true,
+        'extreme': true, 'aventura-gasolina': true, 'aventura-diesel': true, 'x100': true,
+        'urban-chasis-3ton': true, 'urban-ferretero-3ton': true, 'c-3500-4x4': true, 'doble-cabina': true,
+        'pionero-5ton': true, 'pionero-5ton-ferretero': true, '6t-chasis-6ton': true, '6t-ferretero-6ton': true,
+        'bufalo-12ton': true, 'leyenda-chasis-20ton': true, 'cavalino-240hp-22ton': true,
+        'chuto-4251-380hp-40ton': true, 'chuto-4251-430hp-45ton': true, 'sunray-v4-pasajero': true,
+        'sunray-v4-carga': true, 'sunray-v6-pasajeros': true, 'sunray-v6-carga': true, 'refine': true,
+        'voltio-electrico': true, 'electron-electrico': true, 'nevado-electrico': true,
+        '1073-electrico': true, 'sunray-v4-ambulancia': true, 'arena-policial': true,
+        'nevado-policial': true, 'j7-policial': true, 'jac-compactador': true, '6730-autobus': true,
+        'x100-cava-conservacion': true, 'urban-cava-seca-3ton': true,
+        'urban-cava-conservacion-3ton': true, 'urban-cava-refrigerada-3ton': true, '6t-cava-seca-6ton': true,
+        '6t-cava-conservacion-6ton': true, '6t-cava-refrigerada-6ton': true, 'bufalo-cava-seca-12ton': true,
+        'bufalo-cava-conservacion-12ton': true, 'bufalo-cava-refrigerada-12ton': true,
+        'leyenda-cava-seca-20ton': true, 'elevador-brazo-20m': true, 'minero-20m3-tolva': true,
+        'minero-14m3-tolva': true, 'volkan-mezclador': true
+    };
+    
+    const colorMap = {
+        'blanco': '#FFFFFF',
+        'negro': '#000000',
+        'rojo': '#FF0000',
+        'azul': '#0000FF',
+        'gris': '#808080',
+        'plata': '#C0C0C0',
+        'verde': '#008000',
+        'amarillo': '#FFFF00'
+    };
+
+    const tiposVehiculos = {
+        'todos': 'Todos',
+        'sedan': 'Sedán',
+        'suv': 'SUV',
+        'pickup': 'Pick-up',
+        'vans': 'Vans',
+        'camiones': 'Camiones'
+    };
+
+    const vehiculoPlanesPrecios = {
+        'sedan': {
+            'j7': {
+                'Ruta 66': '$16.900',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'elite': {
+                'Ruta 66': '$17.000',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            }
+        },
+        'suv': {
+            'arena-manual': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'arena-automatico': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'arena-pro': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'nevado-manual': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'nevado-automatico': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'tepuy': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'tepuy-pro': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'savanna': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            }
+        },
+        'pickup': {
+            'la-venezolana-gasolina-4x2': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$28.300',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'la-venezolana-diesel-4x2': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$31.800',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'la-venezolana-diesel-4x4': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$35.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'la-venezolana-pro-4x4': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$43.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'extreme': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$40.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'aventura-gasolina': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$30.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'aventura-diesel': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$34.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            }
+        },
+        'camiones': {
+            'x100': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': '$15.000',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'urban-chasis-3ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$16.900',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'urban-ferretero-3ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'c-3500-4x4': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$27.800',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'doble-cabina': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$25.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'pionero-5ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$35.200',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'pionero-5ton-ferretero': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            '6t-chasis-6ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            '6t-ferretero-6ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'bufalo-12ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': '$50.000',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'leyenda-chasis-20ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'cavalino-240hp-22ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'chuto-4251-380hp-40ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'chuto-4251-430hp-45ton': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'voltio-electrico': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'electron-electrico': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'nevado-electrico': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            '1073-electrico': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            }
+        },
+        'vans': {
+            'sunray-v4-pasajero': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'sunray-v4-carga': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'sunray-v6-pasajeros': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'sunray-v6-carga': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            },
+            'refine': {
+                'Ruta 66': 'N/A',
+                'Mi nuevo JAC': 'N/A',
+                'Compra directa 6 cuotas': 'N/A',
+                'Compra directa 5 cuotas': 'N/A',
+                'Compra directa 35x35': 'N/A',
+                'Financiamiento 12 meses': 'N/A',
+                'Financiamiento 30 meses': 'N/A'
+            }
+        }
+    };
+    
+    function getColorHex(colorName) {
+        if (typeof colorName === 'string' && colorName.trim() !== '') {
+            return colorMap[colorName.toLowerCase()] || '#CCCCCC';
+        }
+        return '#CCCCCC';
+    }
+    
+    function populateImageSelector() {
+        const selector = document.getElementById('imagen-selector');
+        selector.innerHTML = '<option value="">Selecciona una imagen</option>';
+        vehiculosList.forEach(v => {
+            const option = document.createElement('option');
+            option.value = v.id;
+            option.textContent = v.name;
+            selector.appendChild(option);
+        });
+        selector.addEventListener('change', (event) => {
+            const selectedId = event.target.value;
+            const previewContainer = document.getElementById('image-preview');
+            const previewImage = document.getElementById('preview-image');
+            if (selectedId) {
+                const imageUrl = `assets/images/${selectedId}.png`;
+                previewImage.src = imageUrl;
+                previewContainer.classList.remove('hidden');
+            } else {
+                previewContainer.classList.add('hidden');
+                previewImage.src = '#';
             }
         });
+    }
 
-        // Listen for authentication state changes (handles public vs admin view)
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            await signInAnonymously(auth);
+            console.log("Sesión anónima iniciada con éxito.");
+        } catch (error) {
+            console.error("Error al iniciar sesión anónimamente: ", error);
+            showMessageBox("Error al cargar la aplicación. Por favor, inténtelo de nuevo.");
+        }
+        populateImageSelector();
         onAuthStateChanged(auth, (user) => {
             if (user && user.isAnonymous === false) {
                 document.getElementById('admin-login-btn').classList.add('hidden');
                 document.getElementById('logout-btn').classList.remove('hidden');
-                document.getElementById('add-vehicle-btn').classList.remove('hidden');
-                if (concesionarioActualId) {
-                    loadModels(concesionarioActualId);
-                }
+                
+                const addVehicleBtn = document.getElementById('add-vehicle-btn');
+                if (addVehicleBtn) addVehicleBtn.classList.remove('hidden');
             } else {
                 document.getElementById('admin-login-btn').classList.remove('hidden');
                 document.getElementById('logout-btn').classList.add('hidden');
-                document.getElementById('add-vehicle-btn').classList.add('hidden');
-                if (concesionarioActualId) {
-                    loadModels(concesionarioActualId);
-                }
+
+                const addVehicleBtn = document.getElementById('add-vehicle-btn');
+                if (addVehicleBtn) addVehicleBtn.classList.add('hidden');
             }
             loadConcesionariosFromFirestore();
+            if (document.getElementById('planes-section').classList.contains('hidden') === false) {
+                setupPlanesSection();
+            }
         });
-
-        // UI Modal Functions
-        function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
-        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
-        function openAddVehicleModal() { 
-            document.getElementById('add-vehicle-modal').classList.remove('hidden'); 
-            document.getElementById('add-vehicle-form').reset();
-            document.getElementById('planes-container-form').innerHTML = `
-                <div class="flex items-center gap-2 mb-2">
-                    <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
-                    <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
-                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            `;
-        }
-        function closeAddVehicleModal() { 
-            document.getElementById('add-vehicle-modal').classList.add('hidden'); 
-            document.getElementById('add-vehicle-form').reset();
-            document.getElementById('planes-container-form').innerHTML = `
-                <div class="flex items-center gap-2 mb-2">
-                    <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
-                    <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
-                    <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            `;
-        }
-        function openEditVehicleModal(id) { 
+    });
+    
+    function openAdminModal() { document.getElementById('admin-modal').classList.remove('hidden'); }
+    function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
+    function openAddVehicleModal() { 
+        document.getElementById('add-vehicle-modal').classList.remove('hidden'); 
+        document.getElementById('add-vehicle-form').reset();
+        document.getElementById('planes-container-form').innerHTML = `
+            <div class="flex items-center gap-2 mb-2">
+                <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+                <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+                <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `;
+        document.getElementById('colores-container-form').innerHTML = `
+            <div class="flex items-center gap-2 mb-2">
+                <input type="text" placeholder="Nombre del Color (ej: blanco)" class="flex-1 px-3 py-2 border rounded-lg color-name-input">
+                <input type="number" placeholder="Cantidad" class="flex-1 px-3 py-2 border rounded-lg color-quantity-input" min="0">
+                <button type="button" class="text-red-500 hover:text-red-700" onclick="removeColorField(this)">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `;
+        document.getElementById('imagen-selector').value = '';
+        document.getElementById('image-preview').classList.add('hidden');
+    }
+    function closeAddVehicleModal() { 
+        document.getElementById('add-vehicle-modal').classList.add('hidden'); 
+        document.getElementById('add-vehicle-form').reset();
+    }
+    function openEditVehicleModal(id) { 
+        vehiculoActualId = id;
+        document.getElementById('edit-vehicle-modal').classList.remove('hidden');
+        loadVehicleForEdit(id);
+    }
+    function closeEditVehicleModal() { 
+        document.getElementById('edit-vehicle-modal').classList.add('hidden'); 
+        document.getElementById('edit-vehicle-form').reset();
+    }
+    function openDeleteConfirmationModal(id, type) {
+        if (type === 'vehicle') {
             vehiculoActualId = id;
-            document.getElementById('edit-vehicle-modal').classList.remove('hidden');
-            loadVehicleForEdit(id);
+            document.getElementById('delete-item-type').textContent = 'vehículo';
+            document.getElementById('confirm-delete-btn').onclick = deleteVehicle;
         }
-        function closeEditVehicleModal() { 
-            document.getElementById('edit-vehicle-modal').classList.add('hidden'); 
-            document.getElementById('edit-vehicle-form').reset();
-        }
-        function openDeleteConfirmationModal(id) {
-            vehiculoActualId = id;
-            document.getElementById('delete-confirmation-modal').classList.remove('hidden');
-        }
-        function closeDeleteConfirmationModal() { document.getElementById('delete-confirmation-modal').classList.add('hidden'); }
-        function showMessageBox(message) {
-            document.getElementById('message-text').textContent = message;
-            document.getElementById('message-modal').classList.remove('hidden');
-        }
-        function closeMessageBox() { document.getElementById('message-modal').classList.add('hidden'); }
+        document.getElementById('delete-confirmation-modal').classList.remove('hidden');
+    }
+    function closeDeleteConfirmationModal() { document.getElementById('delete-confirmation-modal').classList.add('hidden'); }
+    function showMessageBox(message) {
+        document.getElementById('message-text').textContent = message;
+        document.getElementById('message-modal').classList.remove('hidden');
+    }
+    function closeMessageBox() { document.getElementById('message-modal').classList.add('hidden'); }
+    function openPlanesModal(modelId, modelName) {
+        document.getElementById('planes-modal').classList.remove('hidden');
+        document.getElementById('planes-modal-title').textContent = modelName;
+        showPlansForModel(modelId, modelName);
+    }
+    function closePlanesModal() {
+        document.getElementById('planes-modal').classList.add('hidden');
+    }
 
-        // Firebase Auth
-        async function adminLogin() {
-            const email = "admin@jacobelisco.com";
-            const password = "Obelisco25.";
+    async function adminLogin() {
+        const email = "admin@jacobelisco.com";
+        const password = "Obelisco25.";
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            closeAdminModal();
+            showMessageBox('¡Inicio de sesión como administrador exitoso!');
+        } catch (error) {
+            console.error("Error de inicio de sesión de administrador: ", error);
+            showMessageBox('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
+        }
+    }
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                closeAdminModal();
-                showMessageBox('¡Inicio de sesión como administrador exitoso!');
-            } catch (error) {
-                console.error("Error de inicio de sesión de administrador: ", error);
-                showMessageBox('Credenciales incorrectas. Por favor, inténtelo de nuevo.');
+    async function adminLogout() {
+        try {
+            await signOut(auth);
+            showMessageBox('Sesión cerrada correctamente.');
+        } catch (error) {
+            console.error("Error al cerrar sesión: ", error);
+            showMessageBox("Error al cerrar la sesión. Por favor, inténtelo de nuevo.");
+        }
+    }
+
+    async function loadConcesionariosFromFirestore() {
+        const concesionariosContainer = document.getElementById('concesionarios-container');
+        concesionariosContainer.innerHTML = `<div class="text-center py-8">Cargando concesionarios...</div>`;
+        const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
+        try {
+            const concesionariosRef = collection(db, 'concesionarios');
+            const snapshot = await getDocs(concesionariosRef);
+            concesionariosContainer.innerHTML = '';
+            if (snapshot.empty) {
+                concesionariosContainer.innerHTML = `<div class="text-center py-8 text-gray-500">No hay concesionarios disponibles.</div>`;
+                return;
             }
-        }
-
-        async function adminLogout() {
-            try {
-                await signOut(auth);
-                showMessageBox('Sesión cerrada correctamente.');
-            } catch (error) {
-                console.error("Error al cerrar sesión: ", error);
-                showMessageBox("Error al cerrar la sesión. Por favor, inténtelo de nuevo.");
-            }
-        }
-
-        // Dynamically loads the dealerships from Firestore
-        async function loadConcesionariosFromFirestore() {
-            const concesionariosContainer = document.getElementById('concesionarios-container');
-            concesionariosContainer.innerHTML = `<div class="text-center py-8">Cargando concesionarios...</div>`;
-
-            try {
-                const concesionariosRef = collection(db, 'concesionarios');
-                const snapshot = await getDocs(concesionariosRef);
-
-                concesionariosContainer.innerHTML = '';
-                if (snapshot.empty) {
-                    concesionariosContainer.innerHTML = `<div class="text-center py-8 text-gray-500">No hay concesionarios disponibles.</div>`;
-                    return;
+            snapshot.forEach(doc => {
+                const concesionario = doc.data();
+                if (concesionariosEstaticos[doc.id] === undefined) {
+                    concesionariosEstaticos[doc.id] = concesionario.activo === undefined ? true : concesionario.activo;
                 }
-
-                snapshot.forEach(doc => {
-                    const concesionario = doc.data();
-                    const concesionarioDiv = document.createElement('div');
-                    concesionarioDiv.className = 'concesionario-tab bg-white rounded-2xl shadow-xl p-4 cursor-pointer transition-transform duration-200 transform hover:scale-105 hover:shadow-2xl';
-                    concesionarioDiv.onclick = () => openConcesionario(doc.id, concesionario.nombre);
-                    concesionarioDiv.innerHTML = `
-                        <div class="jac-blue text-white p-3 rounded-xl font-bold text-center"><h3>${concesionario.nombre}</h3></div>
-                    `;
-                    concesionariosContainer.appendChild(concesionarioDiv);
-                });
-
-            } catch (error) {
-                console.error("Error al obtener los concesionarios: ", error);
-                concesionariosContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los concesionarios.</div>`;
-            }
-        }
-
-        // Opens the models view for a specific dealership
-        function openConcesionario(concesionarioId, concesionarioNombre) {
-            concesionarioActualId = concesionarioId;
-            document.getElementById('concesionarios-section').classList.add('hidden');
-            document.getElementById('modelos-section').classList.remove('hidden');
-            document.getElementById('concesionario-title').textContent = `Modelos Disponibles - ${concesionarioNombre}`;
-            loadModels(concesionarioId);
-        }
-
-        async function loadModels(concesionarioId) {
-            const modelosContainer = document.getElementById('modelos-container');
-            modelosContainer.innerHTML = `<div class="text-center py-8">Cargando modelos...</div>`;
-            
-            const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
-
-            try {
-                const vehiculosRef = collection(db, 'concesionarios', concesionarioId, 'vehiculos');
-                const snapshot = await getDocs(vehiculosRef);
-                modelosContainer.innerHTML = '';
-                if (snapshot.empty) {
-                    modelosContainer.innerHTML = `<div class="text-center py-8 text-gray-500">No hay vehículos disponibles en este concesionario.</div>`;
-                    return;
-                }
+                const isActive = concesionariosEstaticos[doc.id];
+                const opacityClass = isActive ? '' : 'opacity-50';
+                const cursorClass = isActive ? 'cursor-pointer' : 'cursor-not-allowed';
                 
-                snapshot.forEach(doc => {
-                    const modelo = doc.data();
-                    const modeloCard = document.createElement('div');
-                    modeloCard.className = 'modelo-tab bg-white rounded-2xl shadow-xl overflow-hidden transition-transform duration-200 transform hover:scale-105';
-                    modeloCard.onclick = () => openModelo(doc.id);
-                    
-                    const adminButtonsHtml = isAdmin ? `
-                        <div class="flex gap-2">
-                            <button onclick="openEditVehicleModal('${doc.id}')" class="bg-yellow-400 text-gray-800 p-2 rounded-full hover:bg-yellow-500 transition-colors duration-200 shadow-md" title="Editar">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="openDeleteConfirmationModal('${doc.id}')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200 shadow-md" title="Eliminar">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </div>
-                    ` : '';
+                // Determinar la URL de la imagen del concesionario
+                const defaultConcesionarioImageId = 'jac-logo';
+                const concesionarioImageId = concesionario.imagenId || defaultConcesionarioImageId;
+                const imageUrl = `assets/images/${concesionarioImageId}.png`;
+                
+                const adminButtonHtml = isAdmin ? `
+                    <button onclick="event.stopPropagation(); toggleConcesionarioStatus('${doc.id}')" 
+                            class="p-2 rounded-full transition-colors duration-200 shadow-md ${isActive ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}"
+                            title="${isActive ? 'Desactivar Concesionario' : 'Activar Concesionario'}">
+                        <i class="fa-solid fa-power-off text-white"></i>
+                    </button>
+                ` : '';
 
-                    modeloCard.innerHTML = `
-                        <div class="jac-blue py-3 px-4 text-white font-semibold rounded-t-2xl flex justify-between items-center">
-                            <h3>${modelo.nombre}</h3>
-                            ${adminButtonsHtml}
+                const concesionarioDiv = document.createElement('div');
+                concesionarioDiv.className = `concesionario-card bg-white rounded-2xl shadow-xl p-4 transition-transform duration-200 transform hover:scale-105 hover:shadow-2xl ${opacityClass} ${cursorClass}`;
+                concesionarioDiv.onclick = () => {
+                    if (isActive) {
+                        openConcesionario(doc.id, concesionario.nombre);
+                    } else {
+                        showMessageBox("Este concesionario no tiene stock en este momento.");
+                    }
+                };
+                concesionarioDiv.innerHTML = `
+                    <div class="relative mb-4">
+                        <img src="${imageUrl}" alt="${concesionario.nombre}" class="w-full h-32 object-cover rounded-lg mb-2" onerror="this.onerror=null;this.src='https://placehold.co/300x128/cccccc/333333?text=${encodeURIComponent(concesionario.nombre)}';">
+                        <div class="jac-blue text-white p-2 rounded-xl font-bold text-center absolute bottom-0 left-0 right-0">
+                            <h3>${concesionario.nombre}</h3>
                         </div>
-                        <div class="p-4">
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-gray-600 font-medium">Motor:</span>
-                                <span class="text-gray-800">${modelo.motor}</span>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600 font-medium">Transmisión:</span>
-                                <span class="text-gray-800">${modelo.transmision}</span>
-                            </div>
-                        </div>
-                    `;
+                        ${adminButtonHtml}
+                    </div>
+                `;
+                concesionariosContainer.appendChild(concesionarioDiv);
+            });
+        } catch (error) {
+            console.error("Error al obtener los concesionarios: ", error);
+            concesionariosContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los concesionarios.</div>`;
+        }
+    }
+    
+    function toggleConcesionarioStatus(id) {
+        concesionariosEstaticos[id] = !concesionariosEstaticos[id];
+        showMessageBox(`Concesionario marcado como ${concesionariosEstaticos[id] ? 'activo' : 'inactivo'}.`);
+        loadConcesionariosFromFirestore();
+    }
 
-                    modeloCard.querySelectorAll('button').forEach(btn => {
-                        btn.addEventListener('click', (e) => e.stopPropagation());
-                    });
-                    
-                    modelosContainer.appendChild(modeloCard);
-                });
-            } catch (error) {
-                console.error("Error al obtener los modelos: ", error);
-                modelosContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los datos. Por favor, inténtelo de nuevo.</div>`;
-            }
+    async function openConcesionario(concesionarioId, concesionarioNombre) {
+        concesionarioActualId = concesionarioId;
+        document.getElementById('concesionarios-section').classList.add('hidden');
+        document.getElementById('planes-section').classList.add('hidden');
+        document.getElementById('modelos-section').classList.remove('hidden');
+        document.getElementById('concesionario-title').textContent = `Modelos Disponibles - ${concesionarioNombre}`;
+
+        const concesionarioDoc = await getDoc(doc(db, 'concesionarios', concesionarioId));
+        const concesionarioData = concesionarioDoc.data();
+        if (concesionarioData && concesionarioData.entregaInmediata && concesionarioData.metodosPago) {
+            displayPaymentMethods(concesionarioData.metodosPago);
+        } else {
+            document.getElementById('payment-methods-card').classList.add('hidden');
         }
 
-        // Opens the details view for a specific model
-        async function openModelo(modeloId) {
-            if (!concesionarioActualId) {
-                showMessageBox("Debe seleccionar un concesionario primero.");
-                return;
-            }
-            document.getElementById('modelos-section').classList.add('hidden');
-            document.getElementById('modelo-detail-section').classList.remove('hidden');
-            const detailContainer = document.getElementById('modelo-detail-section');
-            detailContainer.innerHTML = `<div class="text-center py-8">Cargando detalles...</div>`;
+        currentYearFilter = 'all';
+        currentTypeFilter = 'all';
+        loadModels();
+    }
 
-            try {
-                const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', modeloId);
-                const docSnap = await getDoc(docRef);
+    function displayPaymentMethods(paymentMethods) {
+        const card = document.getElementById('payment-methods-card');
+        const list = document.getElementById('payment-methods-list');
+        list.innerHTML = paymentMethods.map(method => `
+            <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full font-semibold">${method}</span>
+        `).join('');
+        card.classList.remove('hidden');
+    }
 
-                if (docSnap.exists()) {
-                    const modelo = docSnap.data();
-                    const planesHTML = modelo.planes.map(plan => `
-                        <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center shadow-sm">
-                            <div class="font-semibold">${plan.nombre}</div>
-                            <div class="text-jac-blue font-bold">${plan.precio}</div>
-                        </div>
-                    `).join('');
+    window.filterModels = (type) => {
+        currentTypeFilter = type;
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active', 'jac-blue', 'text-white');
+            btn.classList.add('bg-gray-300', 'text-gray-800');
+        });
+        const activeBtn = document.querySelector(`.filter-btn[onclick="filterModels('${type}')"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-gray-300', 'text-gray-800');
+            activeBtn.classList.add('active', 'jac-blue', 'text-white');
+        }
+        loadModels();
+    };
 
-                    const coloresHTML = modelo.colores.map(color => `
-                        <div class="w-8 h-8 rounded-full border border-gray-300 shadow-md" style="background-color: ${color};"></div>
-                    `).join('');
+    async function loadModels() {
+        const modelosContainer = document.getElementById('modelos-container');
+        modelosContainer.innerHTML = `<div class="text-center py-8">Cargando modelos...</div>`;
+        
+        const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
 
-                    detailContainer.innerHTML = `
-                        <button onclick="goBackToModels()" class="back-button mb-4 text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
-                            <i class="fa-solid fa-arrow-left mr-2"></i>Volver a Modelos
-                        </button>
-                        <div class="bg-white p-6 rounded-2xl shadow-xl">
-                            <h2 id="modelo-title" class="text-2xl font-bold mb-4 text-center text-gray-800">${modelo.nombre}</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
-                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
-                                    <h4 class="font-bold text-gray-600">Motor</h4>
-                                    <p class="text-gray-800" id="motor-spec">${modelo.motor}</p>
-                                </div>
-                                <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
-                                    <h4 class="font-bold text-gray-600">Transmisión</h4>
-                                    <p class="text-gray-800" id="transmision-spec">${modelo.transmision}</p>
-                                </div>
-                            </div>
-                            <h3 class="text-xl font-bold mb-3 text-jac-blue">Planes y Precios</h3>
-                            <div id="planes-container" class="grid gap-2 mb-6">
-                                ${planesHTML}
-                            </div>
-                            <h3 class="text-xl font-bold mb-3 text-jac-blue">Colores Disponibles</h3>
-                            <div id="colores-container" class="flex flex-wrap gap-2">
-                                ${coloresHTML}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    detailContainer.innerHTML = `<div class="text-center py-8 text-gray-500">Modelo no encontrado.</div>`;
+        try {
+            const vehiculosRef = collection(db, 'concesionarios', concesionarioActualId, 'vehiculos');
+            let q = vehiculosRef;
+
+            const allVehiclesSnapshot = await getDocs(vehiculosRef);
+            const years = new Set();
+            allVehiclesSnapshot.forEach(doc => {
+                const modelo = doc.data();
+                if (modelo.año) {
+                    years.add(modelo.año);
                 }
-            } catch (error) {
-                console.error("Error al obtener los detalles del modelo: ", error);
-                detailContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los detalles. Por favor, inténtelo de nuevo.</div>`;
-            }
-        }
-
-        // Navigation
-        function goBackToConcesionarios() {
-            document.getElementById('modelos-section').classList.add('hidden');
-            document.getElementById('concesionarios-section').classList.remove('hidden');
-        }
-
-        function goBackToModels() {
-            document.getElementById('modelo-detail-section').classList.add('hidden');
-            document.getElementById('modelos-section').classList.remove('hidden');
-        }
-
-        // CRUD Operations
-        async function submitAddVehicle(event) {
-            event.preventDefault();
-            if (!concesionarioActualId) {
-                showMessageBox("Error: Concesionario no seleccionado.");
-                return;
-            }
-
-            const form = document.getElementById('add-vehicle-form');
-            
-            const newVehicle = {
-                nombre: form.nombre.value,
-                motor: form.motor.value,
-                transmision: form.transmision.value,
-                potencia: form.potencia.value,
-                consumo: form.consumo.value,
-                colores: form.colores.value.split(',').map(c => c.trim()),
-                planes: []
+            });
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            const yearFilterSelect = document.getElementById('year-filter');
+            yearFilterSelect.innerHTML = '<option value="all">Todos</option>';
+            sortedYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilterSelect.appendChild(option);
+            });
+            yearFilterSelect.value = currentYearFilter;
+            yearFilterSelect.onchange = () => {
+                currentYearFilter = yearFilterSelect.value;
+                loadModels();
             };
 
-            const planInputs = document.getElementById('planes-container-form').querySelectorAll('input');
-            for (let i = 0; i < planInputs.length; i += 2) {
-                if (planInputs[i].value && planInputs[i+1].value) {
-                    newVehicle.planes.push({
-                        nombre: planInputs[i].value,
-                        precio: planInputs[i+1].value
-                    });
-                }
+            if (currentTypeFilter !== 'all') {
+                q = query(q, where('tipo', '==', currentTypeFilter));
+            }
+            if (currentYearFilter !== 'all') {
+                q = query(q, where('año', '==', parseInt(currentYearFilter)));
             }
 
-            try {
-                await addDoc(collection(db, 'concesionarios', concesionarioActualId, 'vehiculos'), newVehicle);
-                showMessageBox('Vehículo añadido con éxito.');
-                closeAddVehicleModal();
-                loadModels(concesionarioActualId);
-            } catch (error) {
-                console.error("Error al añadir vehículo: ", error);
-                showMessageBox('Error al añadir el vehículo. Por favor, inténtelo de nuevo.');
+            const snapshot = await getDocs(q);
+            modelosContainer.innerHTML = '';
+            if (snapshot.empty) {
+                modelosContainer.innerHTML = `<div class="text-center py-8 text-gray-500">No hay vehículos disponibles con estos filtros.</div>`;
+                return;
+            }
+            
+            snapshot.forEach(doc => {
+                const modelo = doc.data();
+                const isAvailable = modelo.disponible === true;
+                const cursorStyle = isAvailable ? 'cursor-pointer' : 'cursor-not-allowed';
+                
+                const modeloCard = document.createElement('div');
+                modeloCard.className = `modelo-tab bg-white rounded-2xl shadow-xl overflow-hidden transition-transform duration-200 transform hover:scale-105 ${!isAvailable ? 'opacity-50' : ''} ${cursorStyle}`;
+                modeloCard.onclick = () => {
+                    if (isAvailable) openModelo(doc.id);
+                    else showMessageBox("Este vehículo no está disponible.");
+                };
+                
+                const adminButtonsHtml = isAdmin ? `
+                    <div class="flex gap-2 p-2">
+                        <button onclick="event.stopPropagation(); toggleVehicleStatus('${doc.id}', ${isAvailable})" 
+                                class="${!isAvailable ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white p-2 rounded-full transition-colors duration-200 shadow-md" 
+                                title="${!isAvailable ? 'Marcar como Disponible' : 'Marcar como No Disponible'}">
+                            <i class="fa-solid fa-car-on"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); openEditVehicleModal('${doc.id}')" class="bg-yellow-400 text-gray-800 p-2 rounded-full hover:bg-yellow-500 transition-colors duration-200 shadow-md" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="event.stopPropagation(); openDeleteConfirmationModal('${doc.id}', 'vehicle')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors duration-200 shadow-md" title="Eliminar">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                ` : '';
+                
+                const disponibilidadHtml = !isAvailable ? '<p class="text-red-500 text-center font-bold">No Disponible</p>' : '';
+                
+                const imageUrl = `assets/images/${vehiculosList.find(v => v.name === modelo.nombre)?.id || ''}.png`;
+
+                modeloCard.innerHTML = `
+                    <div class="jac-blue py-3 px-4 text-white font-semibold rounded-t-2xl flex justify-between items-center">
+                        <h3>${modelo.nombre}</h3>
+                        ${adminButtonsHtml}
+                    </div>
+                    <img src="${imageUrl}" alt="${modelo.nombre}" class="w-full h-48 object-cover rounded-b-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x200/cccccc/333333?text=${encodeURIComponent(modelo.nombre)}'">
+                    <div class="p-4">
+                        ${disponibilidadHtml}
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600 font-medium">Año:</span>
+                            <span class="text-gray-800">${modelo.año || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600 font-medium">Tipo:</span>
+                            <span class="text-gray-800">${modelo.tipo || 'N/A'}</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-600 font-medium">Motor:</span>
+                            <span class="text-gray-800">${modelo.motor}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 font-medium">Transmisión:</span>
+                            <span class="text-gray-800">${modelo.transmision}</span>
+                        </div>
+                    </div>
+                `;
+                modelosContainer.appendChild(modeloCard);
+            });
+        } catch (error) {
+            console.error("Error al obtener los modelos: ", error);
+            modelosContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los datos. Por favor, inténtelo de nuevo.</div>`;
+        }
+    }
+
+    async function toggleVehicleStatus(id, currentStatus) {
+        if (!concesionarioActualId) {
+            showMessageBox("Error: Concesionario no seleccionado.");
+            return;
+        }
+        const newStatus = !currentStatus;
+        try {
+            const vehicleDocRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', id);
+            await updateDoc(vehicleDocRef, {
+                disponible: newStatus
+            });
+            showMessageBox(`Vehículo marcado como ${newStatus ? 'disponible' : 'no disponible'}.`);
+            loadModels();
+        } catch (error) {
+            console.error("Error al actualizar el estado: ", error);
+            showMessageBox("Error al cambiar el estado del vehículo. Inténtelo de nuevo.");
+        }
+    }
+
+    async function openModelo(modeloId) {
+        if (!concesionarioActualId) {
+            showMessageBox("Debe seleccionar un concesionario primero.");
+            return;
+        }
+        document.getElementById('modelos-section').classList.add('hidden');
+        document.getElementById('modelo-detail-section').classList.remove('hidden');
+        const detailContainer = document.getElementById('modelo-detail-section');
+        detailContainer.innerHTML = `<div class="text-center py-8">Cargando detalles...</div>`;
+        try {
+            const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', modeloId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const modelo = docSnap.data();
+                const planesHTML = modelo.planes.map(plan => `
+                    <div class="bg-gray-100 p-3 rounded-xl flex justify-between items-center shadow-sm">
+                        <div class="font-semibold">${plan.nombre}</div>
+                        <div class="text-jac-blue font-bold">${plan.precio}</div>
+                    </div>
+                `).join('');
+
+                const coloresHTML = modelo.colores.map(c => {
+                    const unidades = c.cantidad > 1 ? ` (${c.cantidad})` : '';
+                    const textoUnidad = c.cantidad > 1 ? `<span class="text-xs font-semibold">${c.cantidad} unidades</span>` : '';
+                    
+                    return `
+                        <div class="flex flex-col items-center gap-1">
+                            <div class="w-8 h-8 rounded-full border border-gray-300 shadow-md" style="background-color: ${getColorHex(c.color)};"></div>
+                            <span class="text-xs text-center">${c.color}${unidades}</span>
+                        </div>
+                    `;
+                }).join('');
+                
+                const disponibilidadHtml = modelo.disponible === false ? '<p class="text-red-500 text-center font-bold mb-4">No Disponible</p>' : '';
+                
+                const imageUrl = `assets/images/${vehiculosList.find(v => v.name === modelo.nombre)?.id || ''}.png`;
+
+                detailContainer.innerHTML = `
+                    <button onclick="goBackToModels()" class="back-button mb-4 text-jac-blue hover:text-jac-dark-blue transition-colors duration-200">
+                        <i class="fa-solid fa-arrow-left mr-2"></i>Volver a Modelos
+                    </button>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl">
+                        <div class="flex justify-center mb-6">
+                            <img src="${imageUrl}" alt="${modelo.nombre}" class="max-w-xs md:max-w-sm rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x200/cccccc/333333?text=${encodeURIComponent(modelo.nombre)}'">
+                        </div>
+                        <h2 id="modelo-title" class="text-2xl font-bold mb-4 text-center text-gray-800">${modelo.nombre}</h2>
+                        ${disponibilidadHtml}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 text-sm">
+                            <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                <h4 class="font-bold text-gray-600">Motor</h4>
+                                <p class="text-gray-800" id="motor-spec">${modelo.motor}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                <h4 class="font-bold text-gray-600">Transmisión</h4>
+                                <p class="text-gray-800" id="transmision-spec">${modelo.transmision}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                <h4 class="font-bold text-gray-600">Año</h4>
+                                <p class="text-gray-800" id="year-spec">${modelo.año || 'N/A'}</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-xl shadow-inner">
+                                <h4 class="font-bold text-gray-600">Tipo</h4>
+                                <p class="text-gray-800" id="tipo-spec">${modelo.tipo || 'N/A'}</p>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-jac-blue">Planes y Precios</h3>
+                        <div id="planes-container" class="grid gap-2 mb-6">
+                            ${planesHTML}
+                        </div>
+                        <h3 class="text-xl font-bold mb-3 text-jac-blue">Colores Disponibles</h3>
+                        <div id="colores-container" class="flex flex-wrap gap-2">
+                            ${coloresHTML}
+                        </div>
+                    </div>
+                `;
+            } else {
+                detailContainer.innerHTML = `<div class="text-center py-8 text-gray-500">Modelo no encontrado.</div>`;
+            }
+        } catch (error) {
+            console.error("Error al obtener los detalles del modelo: ", error);
+            detailContainer.innerHTML = `<div class="text-center py-8 text-red-500">Error al cargar los detalles. Por favor, inténtelo de nuevo.</div>`;
+        }
+    }
+    
+    function goBackToConcesionarios() {
+        document.getElementById('modelos-section').classList.add('hidden');
+        document.getElementById('planes-section').classList.add('hidden');
+        document.getElementById('modelo-detail-section').classList.add('hidden');
+        document.getElementById('concesionarios-section').classList.remove('hidden');
+    }
+
+    function goBackToModels() {
+        document.getElementById('modelo-detail-section').classList.add('hidden');
+        document.getElementById('modelos-section').classList.remove('hidden');
+        loadModels();
+    }
+
+    function showPlanesSection() {
+        document.getElementById('concesionarios-section').classList.add('hidden');
+        document.getElementById('modelos-section').classList.add('hidden');
+        document.getElementById('modelo-detail-section').classList.add('hidden');
+        document.getElementById('planes-section').classList.remove('hidden');
+        setupPlanesSection();
+    }
+
+    function setupPlanesSection() {
+        const planesModelosContainer = document.getElementById('planes-modelos-container');
+        const planesSection = document.getElementById('planes-section');
+        let filterContainer = planesSection.querySelector('.filter-container');
+        
+        if (!filterContainer) {
+            filterContainer = document.createElement('div');
+            filterContainer.className = 'filter-container flex flex-wrap justify-center gap-4 mb-6';
+            planesSection.insertBefore(filterContainer, planesModelosContainer);
+            for (const key in tiposVehiculos) {
+                const button = document.createElement('button');
+                button.textContent = tiposVehiculos[key];
+                button.className = 'filter-btn px-6 py-2 rounded-lg text-sm font-semibold transition-colors duration-200 shadow-md';
+                button.onclick = () => filterPlanes(key);
+                filterContainer.appendChild(button);
+            }
+        }
+        const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
+        const adminPlanesControls = planesSection.querySelector('.admin-planes-controls');
+        if (isAdmin && !adminPlanesControls) {
+            const adminControlsDiv = document.createElement('div');
+            adminControlsDiv.className = 'admin-planes-controls text-center mb-6';
+            adminControlsDiv.innerHTML = `<p class="text-sm text-gray-500">Haz clic en el ícono para cambiar el estado de disponibilidad en esta sección.</p>`;
+            planesSection.insertBefore(adminControlsDiv, filterContainer.nextSibling);
+        } else if (!isAdmin && adminPlanesControls) {
+            adminPlanesControls.remove();
+        }
+        filterPlanes('todos');
+    }
+
+    function filterPlanes(filterType) {
+        const planesModelosContainer = document.getElementById('planes-modelos-container');
+        planesModelosContainer.innerHTML = '';
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('jac-blue', 'text-white');
+            btn.classList.add('bg-gray-300', 'text-gray-800');
+        });
+        const activeBtn = document.querySelector(`.filter-btn[onclick="filterPlanes('${filterType}')"]`);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-gray-300', 'text-gray-800');
+            activeBtn.classList.add('jac-blue', 'text-white');
+        }
+        let modelosAMostrar = [];
+
+        if (filterType === 'todos') {
+            for (const tipo in vehiculoPlanesPrecios) {
+                modelosAMostrar.push(...Object.keys(vehiculoPlanesPrecios[tipo]));
+            }
+        } else {
+            modelosAMostrar = Object.keys(vehiculoPlanesPrecios[filterType] || {});
+        }
+        
+        const isAdmin = auth.currentUser && auth.currentUser.isAnonymous === false;
+
+        if (modelosAMostrar.length === 0) {
+            planesModelosContainer.innerHTML = `<p class="text-center text-gray-500 py-8">No hay vehículos de esta categoría disponibles.</p>`;
+            return;
+        }
+        modelosAMostrar.forEach(vehiculoId => {
+            const vehiculo = vehiculosList.find(v => v.id === vehiculoId);
+            if (!vehiculo) return;
+            
+            const isAvailable = vehiculosDisponiblesEstaticos[vehiculoId] || false;
+            const cursorStyle = isAvailable ? 'cursor-pointer' : 'cursor-not-allowed';
+            
+            const modeloCard = document.createElement('div');
+            modeloCard.className = `modelo-card relative bg-white rounded-2xl shadow-xl overflow-hidden transition-transform duration-200 transform hover:scale-105 ${!isAvailable ? 'opacity-50' : ''} ${cursorStyle}`;
+            modeloCard.onclick = () => {
+                if (isAvailable) openPlanesModal(vehiculo.id, vehiculo.name);
+                else showMessageBox("Este vehículo no está disponible para planes de compra.");
+            };
+
+            const adminButtonHtml = isAdmin ? `
+                <button onclick="event.stopPropagation(); toggleStaticVehicleStatus('${vehiculoId}')"
+                        class="absolute top-2 right-2 text-white p-1 rounded-full text-xs hover:scale-110 transition-transform duration-200"
+                        title="${isAvailable ? 'Marcar como No Disponible' : 'Marcar como Disponible'}">
+                    <i class="fa-solid fa-circle-${isAvailable ? 'check text-green-500' : 'xmark text-red-500'} fa-2x"></i>
+                </button>
+            ` : '';
+            
+            const planesListHTML = planData.map(plan => {
+                let category = Object.keys(vehiculoPlanesPrecios).find(cat => Object.keys(vehiculoPlanesPrecios[cat]).includes(vehiculoId));
+                let precio = category ? (vehiculoPlanesPrecios[category][vehiculoId][plan.name] || 'N/A') : 'N/A';
+                return `
+                    <div class="flex justify-between items-center text-xs sm:text-sm">
+                        <span class="font-medium">${plan.name}:</span>
+                        <span class="font-bold text-jac-blue">${precio}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            const imageUrl = `assets/images/${vehiculo.id}.png`;
+
+            modeloCard.innerHTML = `
+                <div class="p-4 flex flex-col items-center">
+                    <h3 class="font-bold text-lg mb-2 text-center text-jac-dark-blue">${vehiculo.name}</h3>
+                    <img src="${imageUrl}" alt="${vehiculo.name}" class="w-full h-auto rounded-lg mb-4" onerror="this.onerror=null;this.src='https://placehold.co/400x200/cccccc/333333?text=${encodeURIComponent(vehiculo.name)}';">
+                    ${!isAvailable ? '<p class="text-red-500 font-bold mt-2">No Disponible</p>' : ''}
+                    <div class="w-full space-y-2">
+                        ${planesListHTML}
+                    </div>
+                </div>
+                ${adminButtonHtml}
+            `;
+            planesModelosContainer.appendChild(modeloCard);
+        });
+    }
+    
+    function toggleStaticVehicleStatus(vehiculoId) {
+        vehiculosDisponiblesEstaticos[vehiculoId] = !vehiculosDisponiblesEstaticos[vehiculoId];
+        const currentFilterBtn = document.querySelector('.filter-btn.jac-blue');
+        if (currentFilterBtn) {
+            const currentFilter = Object.keys(tiposVehiculos).find(key => tiposVehiculos[key] === currentFilterBtn.textContent);
+            filterPlanes(currentFilter);
+        }
+        showMessageBox(`Vehículo marcado como ${vehiculosDisponiblesEstaticos[vehiculoId] ? 'disponible' : 'no disponible'}.`);
+    }
+    
+    function showPlansForModel(modelId, modelName) {
+        const tabsContainer = document.getElementById('planes-modal-tabs');
+        const contentContainer = document.getElementById('planes-modal-content');
+        tabsContainer.innerHTML = '';
+        contentContainer.innerHTML = '';
+        
+        if (planData.length > 0) {
+            planData.forEach((plan, index) => {
+                const button = document.createElement('button');
+                button.textContent = plan.name;
+                button.className = `tab-button px-4 py-2 text-sm sm:text-base font-semibold transition-colors duration-200`;
+                button.onclick = () => {
+                    document.querySelectorAll('#planes-modal-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    const imageUrl = `assets/planes/${modelId}/${plan.id}.png`;
+                    contentContainer.innerHTML = `<img src="${imageUrl}" alt="Plan de Compra - ${modelName}" class="max-w-full h-auto rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400?text=Plan+no+disponible';">`;
+                };
+                tabsContainer.appendChild(button);
+                if (index === 0) {
+                    button.classList.add('active');
+                    const imageUrl = `assets/planes/${modelId}/${plan.id}.png`;
+                    contentContainer.innerHTML = `<img src="${imageUrl}" alt="Plan de Compra - ${modelName}" class="max-w-full h-auto rounded-lg shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400?text=Plan+no+disponible';">`;
+                }
+            });
+        } else {
+            contentContainer.innerHTML = `<p class="text-center text-gray-500">No hay planes disponibles para este modelo.</p>`;
+        }
+    }
+
+    function addPlanField(containerId) {
+        const container = document.getElementById(containerId);
+        const newPlanField = document.createElement('div');
+        newPlanField.className = 'flex items-center gap-2 mb-2';
+        newPlanField.innerHTML = `
+            <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
+            <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
+            <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        container.appendChild(newPlanField);
+    }
+
+    function removePlan(button) {
+        button.closest('.flex.items-center.gap-2.mb-2').remove();
+    }
+
+    function addColorField(containerId) {
+        const container = document.getElementById(containerId);
+        const newColorField = document.createElement('div');
+        newColorField.className = 'flex items-center gap-2 mb-2';
+        newColorField.innerHTML = `
+            <input type="text" placeholder="Nombre del Color (ej: blanco)" class="flex-1 px-3 py-2 border rounded-lg color-name-input">
+            <input type="number" placeholder="Cantidad" class="flex-1 px-3 py-2 border rounded-lg color-quantity-input" min="0">
+            <button type="button" class="text-red-500 hover:text-red-700" onclick="removeColorField(this)">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        container.appendChild(newColorField);
+    }
+
+    function removeColorField(button) {
+        button.closest('.flex.items-center.gap-2.mb-2').remove();
+    }
+
+    async function submitAddVehicle(event) {
+        event.preventDefault();
+        if (!concesionarioActualId) {
+            showMessageBox("Error: Concesionario no seleccionado.");
+            return;
+        }
+        const form = document.getElementById('add-vehicle-form');
+        
+        const colorInputs = document.querySelectorAll('#colores-container-form .color-name-input');
+        const quantityInputs = document.querySelectorAll('#colores-container-form .color-quantity-input');
+        const colores = [];
+        for (let i = 0; i < colorInputs.length; i++) {
+            const colorName = colorInputs[i].value.trim();
+            const quantity = parseInt(quantityInputs[i].value);
+            if (colorName && !isNaN(quantity) && quantity >= 0) {
+                colores.push({ color: colorName, cantidad: quantity });
             }
         }
 
-        async function loadVehicleForEdit(id) {
-            try {
-                const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', id);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const vehicle = docSnap.data();
-                    const form = document.getElementById('edit-vehicle-form');
-                    form['edit-vehicle-id'].value = id;
-                    form['edit-nombre'].value = vehicle.nombre;
-                    form['edit-motor'].value = vehicle.motor;
-                    form['edit-transmision'].value = vehicle.transmision;
-                    form['edit-colores'].value = vehicle.colores.join(', ');
+        const newVehicle = {
+            nombre: form.nombre.value,
+            año: parseInt(form.año.value),
+            tipo: form.tipo.value,
+            motor: form.motor.value,
+            transmision: form.transmision.value,
+            potencia: form.potencia.value,
+            consumo: form.consumo.value,
+            colores: colores, 
+            planes: [],
+            disponible: true
+        };
 
-                    const planesContainer = document.getElementById('planes-container-edit');
-                    planesContainer.innerHTML = '';
-                    vehicle.planes.forEach(plan => {
+        const planInputs = document.getElementById('planes-container-form').querySelectorAll('input');
+        for (let i = 0; i < planInputs.length; i += 2) {
+            if (planInputs[i].value && planInputs[i+1].value) {
+                newVehicle.planes.push({
+                    nombre: planInputs[i].value,
+                    precio: planInputs[i+1].value
+                });
+            }
+        }
+        try {
+            await addDoc(collection(db, 'concesionarios', concesionarioActualId, 'vehiculos'), newVehicle);
+            showMessageBox('Vehículo añadido con éxito.');
+            closeAddVehicleModal();
+            loadModels();
+        } catch (error) {
+            console.error("Error al añadir el vehículo: ", error);
+            showMessageBox("Error al añadir el vehículo. Por favor, inténtelo de nuevo.");
+        }
+    }
+
+    async function loadVehicleForEdit(id) {
+        try {
+            const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', id);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const vehicleData = docSnap.data();
+                document.getElementById('edit-vehicle-id').value = id;
+                document.getElementById('edit-nombre').value = vehicleData.nombre;
+                document.getElementById('edit-año').value = vehicleData.año || '';
+                document.getElementById('edit-tipo').value = vehicleData.tipo || '';
+                document.getElementById('edit-motor').value = vehicleData.motor;
+                document.getElementById('edit-transmision').value = vehicleData.transmision;
+                document.getElementById('edit-potencia').value = vehicleData.potencia || ''; 
+                document.getElementById('edit-consumo').value = vehicleData.consumo || '';
+
+                const coloresContainer = document.getElementById('colores-container-edit');
+                coloresContainer.innerHTML = '';
+                if (vehicleData.colores && vehicleData.colores.length > 0) {
+                    vehicleData.colores.forEach(c => {
+                        const colorDiv = document.createElement('div');
+                        colorDiv.className = 'flex items-center gap-2 mb-2';
+                        colorDiv.innerHTML = `
+                            <input type="text" value="${c.color}" placeholder="Nombre del Color (ej: blanco)" class="flex-1 px-3 py-2 border rounded-lg color-name-input">
+                            <input type="number" value="${c.cantidad}" placeholder="Cantidad" class="flex-1 px-3 py-2 border rounded-lg color-quantity-input" min="0">
+                            <button type="button" class="text-red-500 hover:text-red-700" onclick="removeColorField(this)">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        `;
+                        coloresContainer.appendChild(colorDiv);
+                    });
+                } else {
+                    addColorField('colores-container-edit');
+                }
+                
+                const planesContainer = document.getElementById('planes-container-edit');
+                planesContainer.innerHTML = '';
+                if (vehicleData.planes && vehicleData.planes.length > 0) {
+                    vehicleData.planes.forEach(plan => {
                         const planDiv = document.createElement('div');
                         planDiv.className = 'flex items-center gap-2 mb-2';
                         planDiv.innerHTML = `
@@ -590,106 +1650,124 @@
                         planesContainer.appendChild(planDiv);
                     });
                 } else {
-                    showMessageBox("No se encontró el vehículo para editar.");
+                    addPlanField('planes-container-edit');
                 }
-            } catch (error) {
-                console.error("Error al cargar datos para editar: ", error);
-                showMessageBox('Error al cargar datos. Por favor, inténtelo de nuevo.');
+            } else {
+                showMessageBox("Vehículo no encontrado para editar.");
+            }
+        } catch (error) {
+            console.error("Error al cargar datos para edición: ", error);
+            showMessageBox("Error al cargar los datos del vehículo.");
+        }
+    }
+
+    async function submitEditVehicle(event) {
+        event.preventDefault();
+        if (!concesionarioActualId || !vehiculoActualId) {
+            showMessageBox("Error: ID del vehículo o concesionario no encontrado.");
+            return;
+        }
+        const form = document.getElementById('edit-vehicle-form');
+
+        const colorInputs = document.querySelectorAll('#colores-container-edit .color-name-input');
+        const quantityInputs = document.querySelectorAll('#colores-container-edit .color-quantity-input');
+        const colores = [];
+        for (let i = 0; i < colorInputs.length; i++) {
+            const colorName = colorInputs[i].value.trim();
+            const quantity = parseInt(quantityInputs[i].value);
+            if (colorName && !isNaN(quantity) && quantity >= 0) {
+                colores.push({ color: colorName, cantidad: quantity });
             }
         }
 
-        async function submitEditVehicle(event) {
-            event.preventDefault();
-            const form = document.getElementById('edit-vehicle-form');
-            const vehicleId = form['edit-vehicle-id'].value;
-            
-            const updatedVehicle = {
-                nombre: form['edit-nombre'].value,
-                motor: form['edit-motor'].value,
-                transmision: form['edit-transmision'].value,
-                potencia: form['edit-potencia'].value,
-                consumo: form['edit-consumo'].value,
-                colores: form['edit-colores'].value.split(',').map(c => c.trim()),
-                planes: []
-            };
-
-            const planInputs = document.getElementById('planes-container-edit').querySelectorAll('input');
-            for (let i = 0; i < planInputs.length; i += 2) {
-                 if (planInputs[i].value && planInputs[i+1].value) {
-                    updatedVehicle.planes.push({
-                        nombre: planInputs[i].value,
-                        precio: planInputs[i+1].value
-                    });
-                }
-            }
-
-            try {
-                const docRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', vehicleId);
-                await updateDoc(docRef, updatedVehicle);
-                showMessageBox('Vehículo actualizado con éxito.');
-                closeEditVehicleModal();
-                loadModels(concesionarioActualId);
-            } catch (error) {
-                console.error("Error al actualizar vehículo: ", error);
-                showMessageBox('Error al actualizar el vehículo. Por favor, inténtelo de nuevo.');
+        const updatedVehicle = {
+            nombre: form['edit-nombre'].value,
+            año: parseInt(form['edit-año'].value),
+            tipo: form['edit-tipo'].value,
+            motor: form['edit-motor'].value,
+            transmision: form['edit-transmision'].value,
+            potencia: form['edit-potencia'].value,
+            consumo: form['edit-consumo'].value,
+            colores: colores, 
+            planes: []
+        };
+        const planInputs = document.getElementById('planes-container-edit').querySelectorAll('input');
+        for (let i = 0; i < planInputs.length; i += 2) {
+            if (planInputs[i].value && planInputs[i+1].value) {
+                updatedVehicle.planes.push({
+                    nombre: planInputs[i].value,
+                    precio: planInputs[i+1].value
+                });
             }
         }
-
-        async function deleteVehicle() {
-            try {
-                if (concesionarioActualId && vehiculoActualId) {
-                    const vehicleDocRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', vehiculoActualId);
-                    await deleteDoc(vehicleDocRef);
-                    showMessageBox('Vehículo eliminado con éxito.');
-                    closeDeleteConfirmationModal();
-                    loadModels(concesionarioActualId);
-                }
-            } catch (error) {
-                console.error("Error al eliminar el vehículo: ", error);
-                showMessageBox('Error al eliminar el vehículo. Por favor, inténtelo de nuevo.');
-            }
+        try {
+            const vehicleDocRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', vehiculoActualId);
+            await updateDoc(vehicleDocRef, updatedVehicle);
+            showMessageBox('¡Cambios guardados con éxito!');
+            closeEditVehicleModal();
+            loadModels();
+        } catch (error) {
+            console.error("Error al guardar los cambios: ", error);
+            showMessageBox("Error al guardar los cambios. Por favor, inténtelo de nuevo.");
         }
+    }
 
-        function addPlanField(containerId) {
-            const container = document.getElementById(containerId);
-            const planDiv = document.createElement('div');
-            planDiv.className = 'flex items-center gap-2 mb-2';
-            planDiv.innerHTML = `
-                <input type="text" placeholder="Nombre del Plan" class="flex-1 px-3 py-2 border rounded-lg">
-                <input type="text" placeholder="Precio" class="flex-1 px-3 py-2 border rounded-lg">
-                <button type="button" class="text-red-500 hover:text-red-700" onclick="removePlan(this)">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            `;
-            container.appendChild(planDiv);
+    async function deleteVehicle() {
+        if (!concesionarioActualId || !vehiculoActualId) {
+            showMessageBox("Error: No se puede eliminar el vehículo. Inténtelo de nuevo.");
+            return;
         }
-
-        function removePlan(button) {
-            button.closest('div').remove();
+        try {
+            const vehicleDocRef = doc(db, 'concesionarios', concesionarioActualId, 'vehiculos', vehiculoActualId);
+            await deleteDoc(vehicleDocRef);
+            showMessageBox('Vehículo eliminado con éxito.');
+            closeDeleteConfirmationModal();
+            loadModels();
+        } catch (error) {
+            console.error("Error al eliminar el vehículo: ", error);
+            showMessageBox("Error al eliminar el vehículo. Por favor, inténtelo de nuevo.");
         }
+    }
 
-        // Expose functions to the global scope for onclick attributes
-        window.openAdminModal = openAdminModal;
-        window.closeAdminModal = closeAdminModal;
-        window.adminLogin = adminLogin;
-        window.adminLogout = adminLogout;
-        window.goBackToConcesionarios = goBackToConcesionarios;
-        window.goBackToModels = goBackToModels;
-        window.openAddVehicleModal = openAddVehicleModal;
-        window.closeAddVehicleModal = closeAddVehicleModal;
-        window.submitAddVehicle = submitAddVehicle;
-        window.openEditVehicleModal = openEditVehicleModal;
-        window.closeEditVehicleModal = closeEditVehicleModal;
-        window.submitEditVehicle = submitEditVehicle;
-        window.openDeleteConfirmationModal = openDeleteConfirmationModal;
-        window.closeDeleteConfirmationModal = closeDeleteConfirmationModal;
-        window.deleteVehicle = deleteVehicle;
-        window.showMessageBox = showMessageBox;
-        window.closeMessageBox = closeMessageBox;
-        window.addPlanField = addPlanField;
-        window.removePlan = removePlan;
-        window.openConcesionario = openConcesionario;
-        window.openModelo = openModelo;
-    </script>
+    function confirmDeletion() {
+        if (vehiculoActualId) {
+            deleteVehicle();
+        }
+    }
+
+    window.openAdminModal = openAdminModal;
+    window.closeAdminModal = closeAdminModal;
+    window.openAddVehicleModal = openAddVehicleModal;
+    window.closeAddVehicleModal = closeAddVehicleModal;
+    window.openEditVehicleModal = openEditVehicleModal;
+    window.closeEditVehicleModal = closeEditVehicleModal;
+    window.openDeleteConfirmationModal = openDeleteConfirmationModal;
+    window.closeDeleteConfirmationModal = closeDeleteConfirmationModal;
+    window.confirmDeletion = confirmDeletion;
+    window.showMessageBox = showMessageBox;
+    window.closeMessageBox = closeMessageBox;
+    window.adminLogin = adminLogin;
+    window.adminLogout = adminLogout;
+    window.openConcesionario = openConcesionario;
+    window.openModelo = openModelo;
+    window.goBackToConcesionarios = goBackToConcesionarios;
+    window.goBackToModels = goBackToModels;
+    window.submitAddVehicle = submitAddVehicle;
+    window.submitEditVehicle = submitEditVehicle;
+    window.deleteVehicle = deleteVehicle;
+    window.addPlanField = addPlanField;
+    window.removePlan = removePlan;
+    window.showPlanesSection = showPlanesSection;
+    window.openPlanesModal = openPlanesModal;
+    window.closePlanesModal = closePlanesModal;
+    window.showPlansForModel = showPlansForModel;
+    window.toggleVehicleStatus = toggleVehicleStatus;
+    window.toggleStaticVehicleStatus = toggleStaticVehicleStatus;
+    window.filterPlanes = filterPlanes;
+    window.filterModels = filterModels;
+    window.addColorField = addColorField;
+    window.removeColorField = removeColorField;
+    window.toggleConcesionarioStatus = toggleConcesionarioStatus;
+</script>
 </body>
 </html>
